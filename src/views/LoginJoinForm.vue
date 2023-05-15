@@ -161,14 +161,18 @@ export default {
 					saveid: (this.isChecked ? "ok" : "no")
 				})
 				.then(({ data }) => {
-					if (data != null) {
+					if (data.length != 0) {
 						// 로그인 성공 시 페이지 이동
+						console.log(data.userId);
+						if (this.isChecked) {
+							alert("쿠키없다");
+						}
 						alert("로그인 성공")
+						VueCookies.set('userid', data.userId)
 						this.$router.push({ name: "home" });
 					} else {
 						// 로그인 실패 시 에러 메시지 표시
 						this.failLogin = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.';
-						this.moveList();
 					}
 					});
 		}
