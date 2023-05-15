@@ -8,7 +8,7 @@
 					<p class="user_unregistered-text">Banjo tote bag bicycle
 						rights, High Life sartorial cray craft beer whatever street art
 						fap.</p>
-					<button class="user_unregistered-signup" id="signup-button">Sign
+					<button class="user_unregistered-signup" id="signup-button" @click="mvSignup">Sign
 						up</button>
 				</div>
 
@@ -16,47 +16,47 @@
 					<h2 class="user_registered-title">Have an account?</h2>
 					<p class="user_registered-text">Banjo tote bag bicycle rights,
 						High Life sartorial cray craft beer whatever street art fap.</p>
-					<button class="user_registered-login" id="login-button">Login</button>
+					<button class="user_registered-login" id="login-button" @click="mvLogin">Login</button>
 				</div>
 			</div>
 
-			<div class="user_options-forms" id="user_options-forms">
+			<div class="user_options-forms" ref="userForms">
 				<div class="user_forms-login">
 					<h2 class="forms_title">Login</h2>
 					<form id="form-login" method="POST" class="forms_form" action="/user/login">
 						<fieldset class="forms_fieldset">
 							<!-- 쿠키 값이 있는 경우 -->
-							<div class="forms_field" v-if="userid">
+							<div class="forms_field" v-if="login.userid">
 								<input id="id_" type="text" placeholder="아이디" class="forms_field-input" required="required"
-									name="userid" autofocus="autofocus" v-model="userid" />
+									name="userid" autofocus="autofocus" v-model="login.userid" />
 								<div class="form-check mb-3 float-end" style="margin-top: 10px">
 									<input class="form-check-input" type="checkbox" value="ok" id="saveid" name="saveid"
-										v-model="isChecked" />
+										v-model="login.isChecked" />
 									<label class="form-check-label" for="saveid"> 아이디저장 </label>
 								</div>
 							</div>
 							<!-- 쿠키 값이 없는 경우 -->
 							<div class="forms_field" v-else>
 								<input id="id_" type="text" placeholder="아이디" class="forms_field-input" required="required"
-									name="userid" autofocus="autofocus" v-model="userid" />
+									name="userid" autofocus="autofocus" v-model="login.userid" />
 								<div class="form-check mb-3 float-end" style="margin-top: 10px">
 									<input class="form-check-input" type="checkbox" value="ok" id="saveid" name="saveid"
-										v-model="isChecked" />
+										v-model="login.isChecked" />
 									<label class="form-check-label" for="saveid"> 아이디저장 </label>
 								</div>
 							</div>
 
 							<div class="forms_field">
 								<input id='password_' type="password" placeholder="비밀번호" name="userpwd"
-									class="forms_field-input" required="required" v-model="userpwd" />
+									class="forms_field-input" required="required" v-model="login.userpwd" />
 							</div>
-							<p style="color: #e8716d; margin-top: 10px">{{ failLogin }}</p>
+							<p style="color: #e8716d; margin-top: 10px">{{ login.failLogin }}</p>
 						</fieldset>
 						<div class="forms_buttons">
 							<button type="button" class="forms_buttons-forgot" id="mvfindPwId">비밀번호
 								| 아이디 찾기</button>
 							<input id="btn-login" type="button" value="Log In" class="forms_buttons-action"
-								v-on:click="login">
+								v-on:click="doLogin">
 						</div>
 					</form>
 				</div>
@@ -66,11 +66,11 @@
 					<form id="form-join" method="POST" class="forms_form" action="">
 						<fieldset class="forms_fieldset">
 							<div class="forms_field">
-								<div id="idcheck-result"></div>
+								<div id="idcheck-result" :style="{ color: join.color }">{{ join.idcheckResult }}</div>
 								<input id="ID" type="text" placeholder="아이디" class="forms_field-input" required="required"
-									name="userid" style="margin-right: 5px;" />
-								<input type='button' value='ID중복확인' class='forms_buttons-action'
-									style="font-size: 1.5rem; padding: 7px 20px;" id="idcheck">
+									name="userid" style="margin-right: 5px;" @input="idDuplicate" v-model="join.userid"/>
+								<!-- <input type='button' value='ID중복확인' class='forms_buttons-action'
+									style="font-size: 1.5rem; padding: 7px 20px;" id="idcheck"> -->
 							</div>
 							<div class="forms_field">
 								<input id='pwd' type="password" placeholder="비밀번호" class="forms_field-input" name="userpwd"
@@ -78,9 +78,7 @@
 										id='isShowMemberPw' onclick="onoff()">
 									<span id='isShowMemberPwText'>보이기</span>
 								</label>
-								<!--  <span>
-                                        <img src="./assets/img/show.png" alt="" class='img_sh' id='isShowMemberPwImg'>
-                                    </span>-->
+
 							</div>
 							<div class="forms_field">
 								<input type="password" placeholder="비밀번호 확인" class="forms_field-input" required="required"
@@ -117,8 +115,7 @@
 						</fieldset>
 						<div class="forms_buttons">
 							<input type="button" value="회원가입" id="btn-join" class="forms_buttons-action"> <input
-								type='button' value='취소' class='forms_buttons-action' style="background-color: #F3E06A;"
-								onclick='location.href = "/"'>
+								type='button' value='취소' class='forms_buttons-action' style="background-color: #F3E06A;">
 						</div>
 					</form>
 				</div>
@@ -130,53 +127,105 @@
 <script>
 import VueCookies from 'vue-cookies'
 import http from "@/api/http";
-// let myCookie = document.cookie.replace(/(?:(?:^|.*;\s*)userid\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-const myCookie = VueCookies.get('userid');
-alert(myCookie);
+
 export default {
 	name: "MemberLogin",
 	data() {
 		return {
-			userid: myCookie,
-			userpwd: "",
-			failLogin: "",
-			isChecked: (myCookie ? true : false),
-
+			//로그인 관련 데이터
+			login:{
+				userid: "",
+				userpwd: "",
+				failLogin: "",
+				isChecked: "",
+			},
+			//회원가입 관련 데이터
+			join: {
+				userid: "",
+				idcheckResult: "",
+				idIsOk: "",
+				color:"",
+			},
 		};
 	},
+	created() {
+		const myCookie = VueCookies.get('userid');
+		this.login.userid = myCookie;
+		this.login.isChecked = (myCookie ? true : false);
+		this.login.idcheckResult = "";
+	},
 	methods: {
-		login: function () {
-			if (!this.userid) {
-				this.failLogin = "아이디를 입력해 주세요!"
+		//로그인
+		doLogin: function () {
+			if (!this.login.userid) {
+				this.login.failLogin = "아이디를 입력해 주세요!"
 				return;
 			}
-			else if (!this.userpwd) {
-				this.failLogin = "비밀번호를 입력해 주세요!"
+			else if (!this.login.userpwd) {
+				this.login.failLogin = "비밀번호를 입력해 주세요!"
 				return;
 			}
 			http
 				.post(`/user/login`, {
-					userid: this.userid,
-					userpwd: this.userpwd,
-					saveid: (this.isChecked ? "ok" : "no")
+					userid: this.login.userid,
+					userpwd: this.login.userpwd,
+					saveid: (this.login.isChecked ? "ok" : "no")
 				})
 				.then(({ data }) => {
 					if (data.length != 0) {
 						// 로그인 성공 시 페이지 이동
-						console.log(data.userId);
-						if (this.isChecked) {
-							alert("쿠키없다");
+						if (this.login.isChecked === false) {
+							VueCookies.remove('userid');
+						}
+						else {
+							VueCookies.set('userid', data.userId)
 						}
 						alert("로그인 성공")
-						VueCookies.set('userid', data.userId)
 						this.$router.push({ name: "home" });
 					} else {
 						// 로그인 실패 시 에러 메시지 표시
-						this.failLogin = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.';
+						this.login.failLogin = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.';
 					}
-					});
+				});
+		},
+		// 자바스크립트 이벤트
+		// 로그인폼->회원가입폼
+		mvSignup() {
+			const userForms = this.$refs.userForms;
+			userForms.classList.remove('bounceRight');
+			userForms.classList.add('bounceLeft');
+		},
+		// 회원가입폼-> 로그인폼
+		mvLogin() {
+			const userForms = this.$refs.userForms;
+			userForms.classList.remove('bounceLeft');
+			userForms.classList.add('bounceRight');
+		},
+		// 아이디 중복 검증
+		idDuplicate() {
+			if (this.join.userid.length < 5 || this.join.userid.length > 16) {
+				this.join.idcheckResult = "아이디는 6자 이상 16자 이하 입니다.";
+				this.join.idIsOk = 1;
+				this.join.color = "#000000";
+			}
+			else {
+				http
+				.get(`/user/${this.join.userid}`).then(({ data }) => {
+					if (data == 0) {
+						this.join.idcheckResult = this.join.userid + "는 사용할 수 있습니다.";
+						this.join.idIsOk = 0;
+						this.join.color = "#2E63F9";
+					}
+					else {
+						this.join.idcheckResult = this.join.userid + "는 이미 사용중입니다.";
+						this.join.idIsOk = 1;
+						this.join.color = "#e8716d";
+					}
+				});
+			}
 		}
-	}
+		
+	},
 };
 </script>
 
@@ -305,14 +354,14 @@ input::placeholder {
 .user_registered-title,
 .user_unregistered-title {
 	margin-bottom: 15px;
-	font-size: 1.66rem;
+	font-size: 1.22rem;
 	line-height: 1em;
 }
 
 .user_unregistered-text,
 .user_registered-text {
-	font-size: .83rem;
-	line-height: 1.4em;
+	font-size: .43rem;
+	line-height: 1.0em;
 }
 
 .user_registered-login,
@@ -323,7 +372,7 @@ input::placeholder {
 	padding: 10px 30px;
 	color: #fff;
 	text-transform: uppercase;
-	line-height: 1em;
+	line-height: 0.6em;
 	letter-spacing: .2rem;
 	transition: background-color .2s ease-in-out, color .2s ease-in-out;
 }
@@ -357,9 +406,9 @@ input::placeholder {
 
 .user_options-forms .forms_title {
 	margin-bottom: 45px;
-	font-size: 2.5rem;
+	font-size: 2.0rem;
 	font-weight: 500;
-	line-height: 1em;
+	line-height: 0.6em;
 	text-transform: uppercase;
 	color: #e8716d;
 	letter-spacing: .1rem;
@@ -367,9 +416,9 @@ input::placeholder {
 
 .forms_sub_title {
 	margin-bottom: 25px;
-	font-size: 1.8rem;
+	font-size: 1.4rem;
 	font-weight: 500;
-	line-height: 1em;
+	line-height: 0.6em;
 	text-transform: uppercase;
 	color: #e8716a;
 	letter-spacing: .1rem;
@@ -385,7 +434,7 @@ input::placeholder {
 	width: 70%;
 	border-bottom: 1px solid #ccc;
 	padding: 6px 20px 6px 6px;
-	font-size: 1.5rem;
+	font-size: 1.1rem;
 	font-weight: 300;
 	color: gray;
 	letter-spacing: .1rem;
@@ -419,7 +468,7 @@ input::placeholder {
 	background-color: #e8716d;
 	border-radius: 3px;
 	padding: 10px 35px;
-	font-size: 1.5rem;
+	font-size: 1.1rem;
 	/* font-family: "Montserrat", sans-serif; */
 	font-weight: 300;
 	color: #fff;
