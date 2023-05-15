@@ -10,6 +10,11 @@ const routes = [
     name: 'home',
     component: HomeView
   },
+  {
+    path: "/login_join",
+    name: "login_join",
+    component: () => import(/* webpackChunkName: "login_join" */ "@/views/LoginJoinForm.vue"),
+  }
 ]
 
 const router = new VueRouter({

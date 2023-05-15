@@ -25,8 +25,7 @@ export default {
 </script>
 <style>
   .footer_{
-    bottom: 0px;
-    position: absolute;
+    margin-top: 10%;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     width: 100%;
   }
