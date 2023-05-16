@@ -134,19 +134,127 @@ export default {
         searchContentId: "",
         searchKeyword: "",
       },
+      map: null,
       items: [],
+      markers: [],
     };
   },
+  mounted() {
+    const script = document.createElement("script");
+    /* global kakao */
+    script.onload = () => kakao.maps.load(this.initMap);
+    script.src =
+      "http://dapi.kakao.com/v2/maps/sdk.js?appkey=509e8446f54aaa4ff63503311698321b&autoload=false";
+    document.head.appendChild(script);
+  },
   methods: {
+    // 관광지 리스트 출력
     submitForm() {
       http
         .post("/tripsearch/list", this.formData)
         .then((response) => {
           this.items = response.data;
+          this.makeMarker(this.items);
         })
         .catch((error) => {
           console.log(error);
         });
+    },
+
+    // 카카오지도
+    initMap() {
+      const container = document.getElementById("map");
+      const options = {
+        center: new kakao.maps.LatLng(37.500613, 127.036431),
+        level: 7,
+      };
+      this.map = new kakao.maps.Map(container, options);
+    },
+
+    // 인포윈도우를 표시하는 클로저 생성
+    makeOverListener(map, marker, infowindow) {
+      return function () {
+        infowindow.open(map, marker);
+      };
+    },
+
+    // 마커 제거
+    removeMarker() {
+      for (var i = 0; i < this.markers.length; i++) {
+        this.markers[i].setMap(null);
+      }
+      this.markers = [];
+    },
+
+    // 마커 생성
+    makeMarker() {
+      this.removeMarker();
+
+      let positions = [];
+
+      for (var item of this.items) {
+        positions.push({
+          content:
+            '<div class="info" onclick="moveCenter(' +
+            item.latitude +
+            ", " +
+            item.longitude +
+            ');">' +
+            '<div class="title">' +
+            item.title +
+            "</div>" +
+            '<div class="body">' +
+            '<div class="img">' +
+            '<img src="' +
+            item.firstImage +
+            '" width="73" height="70">' +
+            "</div>" +
+            "</div>" +
+            '<div class="desc">' +
+            '<div class="ellipsis">' +
+            item.addr2 +
+            "</div>" +
+            '<div class="jibun ellipsis">' +
+            item.addr1 +
+            "</div>" +
+            "</div>" +
+            "</div>",
+          title: item.title,
+          latlng: new kakao.maps.LatLng(item.latitude, item.longitude),
+        });
+      }
+
+      for (var i = 0; i < positions.length; i++) {
+        var marker = new kakao.maps.Marker({
+          map: this.map,
+          position: positions[i].latlng,
+          clickable: true,
+        });
+
+        this.markers.push(marker);
+
+        var iwContent = positions[i].content,
+          iwRemoveable = true;
+
+        var infowindow = new kakao.maps.InfoWindow({
+          content: iwContent,
+          removable: iwRemoveable,
+        });
+
+        kakao.maps.event.addListener(
+          marker,
+          "click",
+          this.makeOverListener(this.map, marker, infowindow)
+        );
+        // kakao.maps.event.addListener(marker, "mouseout", makeOutListener(infowindow));
+      }
+
+      this.map.setCenter(positions[0].latlng);
+    },
+
+    // 중심 이동
+    moveCenter(lat, lng) {
+      this.map.setCenter(new kakao.maps.LatLng(lat, lng));
     },
   },
 };
