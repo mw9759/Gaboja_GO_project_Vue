@@ -1,14 +1,6 @@
 <template>
   <div>
-    <router-view
-      @create-article="createArticle"
-      @update-article="updateArticle"
-      @delete-article="deleteArticle"
-      @detail-article="detailArticle"
-      @search="search"
-      :searchParam="searchParam"
-    ></router-view>
-    <!--  -->
+    <router-view @search="search" :searchParam="searchParam"></router-view>
   </div>
 </template>
 

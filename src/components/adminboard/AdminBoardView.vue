@@ -24,15 +24,25 @@
               ></b-form-textarea>
             </div>
             <b-col cols="auto" class="text-center">
-              <b-button class="btn btn-outline-primary mb-3" style="background-color: white">
+              <b-button
+                v-if="userInfo && userInfo.userId === 'admin'"
+                class="btn btn-outline-primary mb-3"
+                style="background-color: white"
+              >
                 <router-link
                   :to="{ name: 'adminboardmodify', params: { articleNo: `${this.articleNo}` } }"
                   >글수정</router-link
                 >
               </b-button>
-              <span style="margin: 0 10px"></span>
-              <b-button variant="outline-danger mb-3" @click="deleteBoard"> 글삭제 </b-button>
-              <span style="margin: 0 10px"></span>
+              <span v-if="userInfo && userInfo.userId === 'admin'" style="margin: 0 10px"></span>
+              <b-button
+                v-if="userInfo && userInfo.userId === 'admin'"
+                variant="outline-danger mb-3"
+                @click="deleteBoard"
+              >
+                글삭제
+              </b-button>
+              <span v-if="userInfo && userInfo.userId === 'admin'" style="margin: 0 10px"></span>
               <b-button variant="outline-secondary mb-3" @click="list"> 목록으로이동 </b-button>
             </b-col>
           </b-form>
@@ -44,6 +54,7 @@
 
 <script>
 import http from "@/api/http";
+import { mapState } from "vuex";
 
 export default {
   name: "AdminBoardView",
@@ -54,6 +65,9 @@ export default {
       userId: this.user,
       articleNo: this.$route.params.articleNo,
     };
+  },
+  computed: {
+    ...mapState("memberStore", ["isLogin", "userInfo"]),
   },
   methods: {
     deleteBoard() {

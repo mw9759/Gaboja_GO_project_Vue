@@ -5,7 +5,9 @@
         <b-col cols="12" class="board-top">
           <b-row class="mb-2 d-flex justify-content-between">
             <b-col cols="auto">
-              <router-link :to="{ name: 'adminboardwrite' }"
+              <router-link
+                v-if="userInfo && userInfo.userId === 'admin'"
+                :to="{ name: 'adminboardwrite' }"
                 ><b-button variant="outline-secondary">글쓰기</b-button></router-link
               >
             </b-col>
@@ -73,11 +75,18 @@
 
 <script>
 import http from "@/api/http";
+import { mapState } from "vuex";
 
 export default {
   props: {
     searchParam: {
       type: Object,
+    },
+  },
+  computed: {
+    ...mapState("memberStore", ["isLogin", "userInfo"]),
+    rows() {
+      return this.searchParam_list.num;
     },
   },
   name: "AdminBoardList",
@@ -98,11 +107,6 @@ export default {
         { value: "user_id", text: "아이디" },
       ],
     };
-  },
-  computed: {
-    rows() {
-      return this.searchParam_list.num;
-    },
   },
   methods: {
     total() {
