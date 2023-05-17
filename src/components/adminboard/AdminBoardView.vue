@@ -26,13 +26,10 @@
             <b-col cols="auto" class="text-center">
               <b-button
                 v-if="userInfo && userInfo.userId === 'admin'"
-                class="btn btn-outline-primary mb-3"
-                style="background-color: white"
+                variant="outline-primary mb-3"
+                @click="modify"
               >
-                <router-link
-                  :to="{ name: 'adminboardmodify', params: { articleNo: `${this.articleNo}` } }"
-                  >글수정</router-link
-                >
+                글수정
               </b-button>
               <span v-if="userInfo && userInfo.userId === 'admin'" style="margin: 0 10px"></span>
               <b-button
@@ -77,6 +74,9 @@ export default {
     },
     list() {
       this.$router.push({ name: "adminboardlist" });
+    },
+    modify() {
+      this.$router.push({ name: "adminboardmodify", params: { articleNo: `${this.articleNo}` } });
     },
   },
   created() {
