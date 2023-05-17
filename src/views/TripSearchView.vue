@@ -195,7 +195,7 @@ export default {
       for (var item of this.items) {
         positions.push({
           content:
-            '<div class="info" onclick="moveCenter(' +
+            '<div class="info" v-on="moveCenter(' +
             item.latitude +
             ", " +
             item.longitude +

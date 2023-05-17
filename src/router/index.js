@@ -18,7 +18,39 @@ const routes = [
   {
     path: "/tripsearch",
     name: "tripsearch",
-    component: () => import("@/views/TripSearchView.vue"),
+    component: () => import(/* webpackChunkName: "tripsearch" */ "@/views/TripSearchView.vue"),
+  },
+  {
+    path: "/adminboard",
+    name: "adminboard",
+    component: () => import(/* webpackChunkName: "adminboard" */ "@/views/AdminBoard.vue"),
+    redirect: "/adminboard/list",
+    children: [
+      {
+        path: "list",
+        name: "adminboardlist",
+        component: () =>
+          import(/* webpackChunkName: "adminboard" */ "@/components/adminboard/AdminBoardList"),
+      },
+      {
+        path: "write",
+        name: "adminboardwrite",
+        component: () =>
+          import(/* webpackChunkName: "adminboard" */ "@/components/adminboard/AdminBoardWrite"),
+      },
+      {
+        path: "view/:articleNo",
+        name: "adminboardview",
+        component: () =>
+          import(/* webpackChunkName: "adminboard" */ "@/components/adminboard/AdminBoardView"),
+      },
+      {
+        path: "modify/:articleNo",
+        name: "adminboardmodify",
+        component: () =>
+          import(/* webpackChunkName: "adminboard" */ "@/components/adminboard/AdminBoardModify"),
+      },
+    ],
   },
 ];
 

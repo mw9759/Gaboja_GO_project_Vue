@@ -15,7 +15,7 @@
             ></b-nav-item
           >
           <b-nav-item href="#"
-            ><router-link :to="{ name: 'board' }" class="link"
+            ><router-link :to="{ name: 'adminboardlist' }" class="link"
               ><b-icon icon="journal" font-scale="1.5"></b-icon> 게시판</router-link
             ></b-nav-item
           >
