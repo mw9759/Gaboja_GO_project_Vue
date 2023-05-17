@@ -39,13 +39,17 @@
         <!-- after login -->
         <b-navbar-nav class="ml-auto" v-if="userInfo">
           <b-nav-item class="align-self-center">
-            <b-avatar variant="primary" v-text="userInfo.userid.charAt(0).toUpperCase()"></b-avatar>
-            {{ userInfo.username }}({{ userInfo.userid }})님 환영합니다.
+            <b-avatar variant="primary" v-text="userInfo.userId.charAt(0).toUpperCase()"></b-avatar>
+            {{ userInfo.userName }}({{ userInfo.userId }})님 환영합니다.
           </b-nav-item>
           <b-nav-item class="align-self-center">
-            <router-link :to="{ name: 'mypage' }" class="link align-self-center">내정보보기</router-link>
+            <router-link :to="{ name: 'mypage' }" class="link align-self-center"
+              >내정보보기</router-link
+            >
           </b-nav-item>
-          <b-nav-item class="align-self-center link" @click.prevent="onClickLogout">로그아웃</b-nav-item>
+          <b-nav-item class="align-self-center link" @click.prevent="onClickLogout"
+            >로그아웃</b-nav-item
+          >
         </b-navbar-nav>
 
         <!-- before login -->
@@ -78,25 +82,25 @@ const memberStore = "memberStore";
 export default {
   name: "HeaderNaviBar",
   data() {
-		return {};
+    return {};
   },
 
   computed: {
     ...mapState(memberStore, ["isLogin", "userInfo"]),
     ...mapGetters(["checkUserInfo"]),
   },
-	
+
   methods: {
     ...mapActions(memberStore, ["userLogout"]),
 
     onClickLogout() {
       console.log(this.userInfo.userid);
-      this.userLogout(this.userInfo.userid);// 임포트한 로그아웃 매서드 호출. 인자값: 로그인한 유저의 아이디.
+      this.userLogout(this.userInfo.userid); // 임포트한 로그아웃 매서드 호출. 인자값: 로그인한 유저의 아이디.
       sessionStorage.removeItem("access-token"); //저장된 토큰 없애기
       sessionStorage.removeItem("refresh-token"); //저장된 토큰 없애기
-      if (this.$route.path != "/") this.$router.push({ name: "main" });
+      if (this.$route.path != "/") this.$router.push({ name: "home" });
     },
-  }
+  },
 };
 </script>
 

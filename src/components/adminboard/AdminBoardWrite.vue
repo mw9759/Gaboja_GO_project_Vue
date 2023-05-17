@@ -35,6 +35,8 @@
 
 <script>
 import http from "@/api/http";
+import { mapState } from "vuex";
+const memberStore = "memberStore";
 
 export default {
   props: {
@@ -42,12 +44,15 @@ export default {
       type: String,
     },
   },
+  computed: {
+    ...mapState(memberStore, ["isLogin", "userInfo"]),
+  },
   name: "AdminBoardWrite",
   data() {
     return {
       subject: null,
       content: null,
-      userId: this.user,
+      userId: this.$store.state.userInfo.userId,
       searchParam_list: {
         key: null,
         word: null,
@@ -59,8 +64,7 @@ export default {
   },
   methods: {
     write() {
-      console.log(this.subject);
-      console.log(this.userId);
+      console.log(this.$store.state.userInfo.userId);
       http
         .post("/adminboard/write", {
           subject: this.subject,
