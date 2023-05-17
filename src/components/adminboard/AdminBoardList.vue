@@ -101,7 +101,6 @@ export default {
         num: this.searchParam.num,
       },
       option: [
-        { value: null, text: "검색조건" },
         { value: "subject", text: "제목" },
         { value: "article_no", text: "글번호" },
         { value: "user_id", text: "아이디" },
