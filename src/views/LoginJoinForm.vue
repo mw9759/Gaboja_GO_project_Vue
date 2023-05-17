@@ -66,44 +66,45 @@
 					<form id="form-join" method="POST" class="forms_form" action="">
 						<fieldset class="forms_fieldset">
 							<div class="forms_field">
-								<div id="idcheck-result" :style="{ color: join.color }">{{ join.idcheckResult }}</div>
 								<input id="ID" type="text" placeholder="아이디" class="forms_field-input" required="required"
-									name="userid" style="margin-right: 5px;" @input="idDuplicate" v-model="join.userid"/>
+								name="userid" style="margin-right: 5px;" @input="idDuplicate" v-model="join.userid"/>
+								<div id="idcheck-result" :style="{ color: join.color }">{{ join.idcheckResult }}</div>
 								<!-- <input type='button' value='ID중복확인' class='forms_buttons-action'
 									style="font-size: 1.5rem; padding: 7px 20px;" id="idcheck"> -->
 							</div>
 							<div class="forms_field">
-								<input id='pwd' type="password" placeholder="비밀번호" class="forms_field-input" name="userpwd"
-									required="required" style="margin-right: 5px;" /> <label> <input type="checkbox"
-										id='isShowMemberPw' onclick="onoff()">
+								<input id='pwd' :type="join.pwdType" placeholder="비밀번호" class="forms_field-input" name="userpwd"
+									required="required" style="margin-right: 5px;" @input="isSame" v-model="join.password1"/> 
+									<label> 
+										<input type="checkbox" id='isShowMemberPw' v-model="join.pwdshow" @input="showAndHide">
 									<span id='isShowMemberPwText'>보이기</span>
-								</label>
+									</label>
 
 							</div>
 							<div class="forms_field">
-								<input type="password" placeholder="비밀번호 확인" class="forms_field-input" required="required"
-									id='checkpwd' onkeyup="same();" />
-								<p id='pidback'></p>
+								<input :type="join.pwdType" placeholder="비밀번호 확인" class="forms_field-input" required="required"
+									id='checkpwd' @input="isSame" v-model="join.password2"/>
+								<div id='pidback' :style="{ color: join.pwdcolor }">{{ join.pwdcheckResult }}</div>
 							</div>
 							<div class="forms_field">
-								<input id='name' type="text" placeholder="이름" name='username' class="forms_field-input"
+								<input id='name' type="text" placeholder="이름" v-model="join.userName" class="forms_field-input"
 									required="required" />
 							</div>
 							<div class="forms_field">
 								<input type="text" style="width: 20%;" name='mobile1' id='mobile1' value='010'
 									class="forms_field-input" required="required" readonly="readonly"> <input type="text"
 									style="width: 30%;" name='fnum' id='mobile2' placeholder="앞자리" maxlength='4'
-									class="forms_field-input" required="required" />
+									class="forms_field-input" required="required" v-model="join.fnum"/>
 								<input type="text" style="width: 30%;" name='bnum' id='mobile3' placeholder="뒷자리"
-									maxlength='4' class="forms_field-input" required="required" />
+									maxlength='4' class="forms_field-input" required="required" v-model="join.bnum"/>
 							</div>
 
 							<div class="forms_field">
 								<input type="text" placeholder="Email" class="forms_field-input" required="required"
-									style="width: 38%;" name='emailid' id='email1' />@
+									style="width: 38%;" v-model='join.emailid' id='email1' />@
 								<input type="text" placeholder="Domain" class="forms_field-input" required="required"
-									readonly="readonly" style="width: 38%" name='emaildomain' id='email2' value="도메인선택" />
-								<select name='emailDomain' id='emailChoose'>
+									readonly="readonly" style="width: 38%" ref='emaildomain' id='email2' value="도메인선택" v-model="join.emailDomain" />
+								<select name='emailDomain' id='emailChoose' @change="SelectChange">
 									<option value='none'>=선택=</option>
 									<option value='samsung.com'>삼성</option>
 									<option value='naver.com'>네이버</option>
@@ -114,8 +115,8 @@
 
 						</fieldset>
 						<div class="forms_buttons">
-							<input type="button" value="회원가입" id="btn-join" class="forms_buttons-action"> <input
-								type='button' value='취소' class='forms_buttons-action' style="background-color: #F3E06A;">
+							<input type="button" value="회원가입" id="btn-join" class="forms_buttons-action" @click="signUp"> <input
+								type='button' value='취소' class='forms_buttons-action' style="background-color: #F3E06A;" @click="gotoHome">
 						</div>
 					</form>
 				</div>
@@ -127,6 +128,9 @@
 <script>
 import VueCookies from 'vue-cookies'
 import http from "@/api/http";
+import swal from 'sweetalert';
+import { mapState, mapActions } from "vuex";
+const memberStore = "memberStore";
 
 export default {
 	name: "MemberLogin",
@@ -144,7 +148,19 @@ export default {
 				userid: "",
 				idcheckResult: "",
 				idIsOk: "",
-				color:"",
+				color: "",
+				password1: "",
+				password2: "",
+				pwdcheckResult: "",
+				pwdcolor: "",
+				pwdIsOk: "",
+				pwdshow: "",
+				pwdType: "",
+				emailDomain: "",
+				emailid:"",
+				userName: "",
+				fnum: "",
+				bnum: "",
 			},
 		};
 	},
@@ -153,10 +169,20 @@ export default {
 		this.login.userid = myCookie;
 		this.login.isChecked = (myCookie ? true : false);
 		this.login.idcheckResult = "";
+		this.join.pwdType = "password";
 	},
+
+	computed: {
+		fullNum: function () {
+			return "010"+this.join.fnum + this.join.bnum;
+		},
+		...mapState(memberStore, ["isLogin", "isLoginError", "userInfo"]),
+	},
+
 	methods: {
+		...mapActions(memberStore, ["userConfirm", "getUserInfo"]),
 		//로그인
-		doLogin: function () {
+		async doLogin() {
 			if (!this.login.userid) {
 				this.login.failLogin = "아이디를 입력해 주세요!"
 				return;
@@ -165,28 +191,66 @@ export default {
 				this.login.failLogin = "비밀번호를 입력해 주세요!"
 				return;
 			}
-			http
-				.post(`/user/login`, {
-					userid: this.login.userid,
-					userpwd: this.login.userpwd,
-					saveid: (this.login.isChecked ? "ok" : "no")
-				})
-				.then(({ data }) => {
-					if (data.length != 0) {
+			await this.userConfirm({
+				userid: this.login.userid,
+				userpwd: this.login.userpwd,
+			});
+			let token = sessionStorage.getItem("access-token");
+			// console.log("1. confirm() token >> " + token);
+			if (this.isLogin) {
+				await this.getUserInfo(token);
+				// console.log("4. confirm() userInfo :: ", this.userInfo);
+				swal({
+						title: `${this.login.userid}님 환영합니다!`,
+						text: "메인 화면으로 이동합니다.",
+						icon: "success",
+						button: "확인",
+					}).then((value) => {
 						// 로그인 성공 시 페이지 이동
-						if (this.login.isChecked === false) {
-							VueCookies.remove('userid');
-						}
-						else {
-							VueCookies.set('userid', data.userId)
-						}
-						alert("로그인 성공")
 						this.$router.push({ name: "home" });
-					} else {
-						// 로그인 실패 시 에러 메시지 표시
-						this.login.failLogin = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.';
-					}
-				});
+						console.log(value);	
+					});
+			}
+			// http
+			// 	.post(`/user/login`, {
+			// 		userid: this.login.userid,
+			// 		userpwd: this.login.userpwd,
+			// 	})
+			// 	.then(response => {
+			// 		const token = response.data['access-token']; // 토큰 가져오기.
+			// 		const loginId = response.data['loginId']; // 로그인성공 아이디
+			// 		if (token) {
+			// 			localStorage.setItem('access-token', token); // 토큰 로컬스토리지에 저장.
+			// 			localStorage.setItem('loginId', loginId);
+			// 			// 아이디 저장 여부 체크
+			// 			if (this.login.isChecked === false) {
+			// 				VueCookies.remove('userid');
+			// 			}
+			// 			else {
+			// 				VueCookies.set('userid', this.login.userid);
+			// 			}
+			// 			swal({
+			// 				title: `${this.login.userid}님 환영합니다!`,
+			// 				text: "메인 화면으로 이동합니다.",
+			// 				icon: "success",
+			// 				button: "확인",
+			// 			}).then((value) => {
+			// 				// 로그인 성공 시 페이지 이동
+			// 				this.$router.push({ name: "home" });
+			// 				console.log(value);
+			// 			});
+			// 		} else {
+			// 			// 로그인 실패 시 에러 메시지 표시
+			// 			this.login.failLogin = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.';
+			// 		}
+			// 	})
+			// 	.catch(error => {
+					// swal({
+					// 	title: `ㅈ버그발생${error}`,
+					// 	icon: "error",
+					// 	button: "확인",
+					// });
+			// 	});
 		},
 		// 자바스크립트 이벤트
 		// 로그인폼->회원가입폼
@@ -223,8 +287,128 @@ export default {
 					}
 				});
 			}
+		},
+
+		//비밀번호 일치 확인
+		isSame() {
+			if (this.join.password1 == this.join.password2) {
+				this.join.pwdcheckResult = "비밀번호가 일치합니다.";
+				this.join.pwdcolor = "#2E63F9";
+				this.join.pwdIsOk = 0;
+			} else {
+				this.join.pwdcheckResult = "비밀번호가 일치하지 않습니다.";
+				this.join.pwdcolor = "#e8716d";
+				this.join.pwdIsOk = 1;
+			}
+		},
+
+		// 비밀번호 숨기기, 보이기
+		showAndHide() {
+			if (this.join.pwdshow) {
+				this.join.pwdType="password"
+			} else {
+				this.join.pwdType="text"
+			}
+		},
+
+		//이메일 도메인 선택
+		SelectChange(domain) {
+			if (domain.target.value == "user-input") {
+				this.join.emailDomain = "";
+				const emaildomain = this.$refs.emaildomain;
+				emaildomain.placeholder = '직접입력';
+				emaildomain.readOnly = false;
+				emaildomain.focus()
+				return;
+			}
+			this.join.emailDomain = domain.target.value;
+		},
+
+		// 회원가입
+		signUp() {
+			if (this.join.idIsOk != "0") {
+				swal({
+					title: "가입 실패!",
+					text: "아이디 중복을 확인해 주세요!",
+					icon: "error",
+					button: "확인",
+				});
+			}
+			else if (this.join.password1.length < 4) {
+				swal({
+					title: "가입 실패!",
+					text: "비밀번호를 4자 이상 입력해 주세요!",
+					icon: "error",
+					button: "확인",
+				});
+			}
+			else if (this.join.pwdIsOk != "0") {
+				swal({
+					title: "가입 실패!",
+					text: "비밀번호가 일치하지 않습니다!",
+					icon: "error",
+					button: "확인",
+				});
+			}
+			else if (this.join.userName.length < 1) {
+				swal({
+					title: "가입 실패!",
+					text: "이름을 입력해 주세요!",
+					icon: "error",
+					button: "확인",
+				});
+			}
+			else {
+				http
+				.post(`/user/join`, {
+					userid: this.join.userid,
+					userpwd: this.join.password1,
+					username: this.join.userName,
+					emailid: this.join.emailid,
+					emaildomain: this.join.emailDomain,
+					fullNum: this.fullNum,
+				}).then(({ data }) => {
+					if (data == "success") {
+						this.join.userid= "";
+						this.join.idcheckResult= "";
+						this.join.idIsOk= "";
+						this.join.color= "";
+						this.join.password1= "";
+						this.join.password2= "";
+						this.join.pwdcheckResult= "";
+						this.join.pwdcolor= "";
+						this.join.pwdIsOk= "";
+						this.join.pwdshow= "";
+						this.join.pwdType= "";
+						this.join.emailDomain= "";
+						this.join.emailid = "";
+						this.join.userName = "";
+						this.join.fnum= "";
+						this.join.bnum = "";
+						swal({
+							title: "가입 성공!",
+							icon: "success",
+							button: "확인",
+						}).then((value) => {
+							this.mvLogin();
+							console.log(value);
+						});
+					}
+					else {
+						swal({
+							title: "가입 실패ㅠ.ㅠ",
+							text: "알 수 없는 오류",
+							icon: "error",
+							button: "확인",
+						});
+					}
+				});
+			}
+		},
+		//홈 이동
+		gotoHome() {
+			this.$router.push('/');
 		}
-		
 	},
 };
 </script>
@@ -262,7 +446,7 @@ input[type="submit"] {
 }
 
 input::placeholder {
-	font-size: 1.5rem;
+	font-size: 1rem;
 	/* font-family: "Montserrat", sans-serif; */
 	font-weight: 300;
 	letter-spacing: .1rem;
