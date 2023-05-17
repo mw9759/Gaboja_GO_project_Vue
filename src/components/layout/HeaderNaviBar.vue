@@ -16,12 +16,12 @@
           >
           <b-nav-item href="#"
             ><router-link :to="{ name: 'adminboardlist' }" class="link"
-              ><b-icon icon="journal" font-scale="1.5"></b-icon> 게시판</router-link
+              ><b-icon icon="journal" font-scale="1.5"></b-icon> 공지사항</router-link
             ></b-nav-item
           >
           <b-nav-item href="#"
-            ><router-link :to="{ name: 'instagram' }" class="link"
-              ><b-icon icon="instagram" font-scale="1.5"></b-icon> 여행일기</router-link
+            ><router-link :to="{ name: 'QnA' }" class="link"
+              ><b-icon icon="question-circle" font-scale="1.5"></b-icon> QnA</router-link
             ></b-nav-item
           >
           <b-nav-item href="#"
@@ -94,8 +94,8 @@ export default {
     ...mapActions(memberStore, ["userLogout"]),
 
     onClickLogout() {
-      console.log(this.userInfo.userid);
-      this.userLogout(this.userInfo.userid); // 임포트한 로그아웃 매서드 호출. 인자값: 로그인한 유저의 아이디.
+      console.log(this.userInfo.userId);
+      this.userLogout(this.userInfo.userId); // 임포트한 로그아웃 매서드 호출. 인자값: 로그인한 유저의 아이디.
       sessionStorage.removeItem("access-token"); //저장된 토큰 없애기
       sessionStorage.removeItem("refresh-token"); //저장된 토큰 없애기
       if (this.$route.path != "/") this.$router.push({ name: "home" });
