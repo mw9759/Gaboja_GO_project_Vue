@@ -101,7 +101,7 @@
 
 							<div class="forms_field">
 								<input type="text" placeholder="Email" class="forms_field-input" required="required"
-									style="width: 38%;" v-model='emailid' id='email1' />@
+									style="width: 38%;" v-model='join.emailid' id='email1' />@
 								<input type="text" placeholder="Domain" class="forms_field-input" required="required"
 									readonly="readonly" style="width: 38%" ref='emaildomain' id='email2' value="도메인선택" v-model="join.emailDomain" />
 								<select name='emailDomain' id='emailChoose' @change="SelectChange">
@@ -129,6 +129,9 @@
 import VueCookies from 'vue-cookies'
 import http from "@/api/http";
 import swal from 'sweetalert';
+import { mapState, mapActions } from "vuex";
+const memberStore = "memberStore";
+
 export default {
 	name: "MemberLogin",
 	data() {
@@ -173,11 +176,13 @@ export default {
 		fullNum: function () {
 			return "010"+this.join.fnum + this.join.bnum;
 		},
+		...mapState(memberStore, ["isLogin", "isLoginError", "userInfo"]),
 	},
 
 	methods: {
+		...mapActions(memberStore, ["userConfirm", "getUserInfo"]),
 		//로그인
-		doLogin: function () {
+		async doLogin() {
 			if (!this.login.userid) {
 				this.login.failLogin = "아이디를 입력해 주세요!"
 				return;
@@ -186,35 +191,66 @@ export default {
 				this.login.failLogin = "비밀번호를 입력해 주세요!"
 				return;
 			}
-			http
-				.post(`/user/login`, {
-					userid: this.login.userid,
-					userpwd: this.login.userpwd,
-					saveid: (this.login.isChecked ? "ok" : "no")
-				})
-				.then(({ data }) => {
-					if (data.length != 0) {
+			await this.userConfirm({
+				userid: this.login.userid,
+				userpwd: this.login.userpwd,
+			});
+			let token = sessionStorage.getItem("access-token");
+			// console.log("1. confirm() token >> " + token);
+			if (this.isLogin) {
+				await this.getUserInfo(token);
+				// console.log("4. confirm() userInfo :: ", this.userInfo);
+				swal({
+						title: `${this.login.userid}님 환영합니다!`,
+						text: "메인 화면으로 이동합니다.",
+						icon: "success",
+						button: "확인",
+					}).then((value) => {
 						// 로그인 성공 시 페이지 이동
-						if (this.login.isChecked === false) {
-							VueCookies.remove('userid');
-						}
-						else {
-							VueCookies.set('userid', data.userId)
-						}
-						swal({
-							title: `${this.login.userid}님 환영합니다!`,
-							text: "메인 화면으로 이동합니다.",
-							icon: "success",
-							button: "확인",
-						}).then((value) => {
-							this.$router.push({ name: "home" });
-							console.log(value);
-						});
-					} else {
-						// 로그인 실패 시 에러 메시지 표시
-						this.login.failLogin = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.';
-					}
-				});
+						this.$router.push({ name: "home" });
+						console.log(value);	
+					});
+			}
+			// http
+			// 	.post(`/user/login`, {
+			// 		userid: this.login.userid,
+			// 		userpwd: this.login.userpwd,
+			// 	})
+			// 	.then(response => {
+			// 		const token = response.data['access-token']; // 토큰 가져오기.
+			// 		const loginId = response.data['loginId']; // 로그인성공 아이디
+			// 		if (token) {
+			// 			localStorage.setItem('access-token', token); // 토큰 로컬스토리지에 저장.
+			// 			localStorage.setItem('loginId', loginId);
+			// 			// 아이디 저장 여부 체크
+			// 			if (this.login.isChecked === false) {
+			// 				VueCookies.remove('userid');
+			// 			}
+			// 			else {
+			// 				VueCookies.set('userid', this.login.userid);
+			// 			}
+			// 			swal({
+			// 				title: `${this.login.userid}님 환영합니다!`,
+			// 				text: "메인 화면으로 이동합니다.",
+			// 				icon: "success",
+			// 				button: "확인",
+			// 			}).then((value) => {
+			// 				// 로그인 성공 시 페이지 이동
+			// 				this.$router.push({ name: "home" });
+			// 				console.log(value);
+			// 			});
+			// 		} else {
+			// 			// 로그인 실패 시 에러 메시지 표시
+			// 			this.login.failLogin = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.';
+			// 		}
+			// 	})
+			// 	.catch(error => {
+					// swal({
+					// 	title: `ㅈ버그발생${error}`,
+					// 	icon: "error",
+					// 	button: "확인",
+					// });
+			// 	});
 		},
 		// 자바스크립트 이벤트
 		// 로그인폼->회원가입폼
