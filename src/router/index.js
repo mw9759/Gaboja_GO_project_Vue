@@ -21,9 +21,24 @@ const routes = [
     component: () => import(/* webpackChunkName: "tripsearch" */ "@/views/TripSearchView.vue"),
   },
   {
-    path: "/QnA",
-    name: "QnA",
+    path: "/qna",
+    name: "qna",
     component: () => import(/* webpackChunkName: "QnA" */ "@/views/QnA.vue"),
+    redirect: "/qna/list",
+    children: [
+      {
+        path: "list",
+        name: "qnalist",
+        component: () =>
+          import(/* webpackChunkName: "QnA" */ "@/components/qna/QnAList"),
+      },
+      {
+        path: "write",
+        name: "qnawrite",
+        component: () =>
+          import(/* webpackChunkName: "QnA" */ "@/components/qna/QnAWrite"),
+      },
+    ]
   },
   {
     path: "/adminboard",
