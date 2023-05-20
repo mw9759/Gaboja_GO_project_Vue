@@ -65,10 +65,16 @@ export default {
                 .then(() => {
                     this.$emit("search", this.searchParam_list);
                     this.$router.push({ name: "qnalist" });
+                    this.write_result(); // write_result() 메서드를 then() 메서드 내에서 호출
                 });
         },
+        // 게시글 작성시 답변테이블에도 틀만 만들어준다.
+        write_result() {
+            http.post("/qna/writeresult")
+        },
+
         list() {
-            this.$router.push({ name: "adminboardlist" });
+            this.$router.push({ name: "qnalist" });
         },
     },
 };
