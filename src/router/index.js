@@ -121,7 +121,7 @@ const routes = [
       },
     ],
   },
-    {
+  {
     path: "/travelplan",
     name: "travelplan",
     component: () => import(/* webpackChunkName: "travelplan" */ "@/views/TravelPlanView.vue"),
@@ -132,9 +132,15 @@ const routes = [
         name: "travelplanlist",
         beforeEnter: onlyAuthUser,
         component: () =>
-          import(/* webpackChunkName: "QnA" */ "@/components/travelplan/TravelPlanList"),
+          import(/* webpackChunkName: "travelplan" */ "@/components/travelplan/TravelPlanList"),
       },
-    ]
+      {
+        path: "view",
+        name: "travelplanview",
+        component: () =>
+          import(/* webpackChunkName: "travelplan" */ "@/components/travelplan/TravelPlanView"),
+      },
+    ],
   },
 ];
 
