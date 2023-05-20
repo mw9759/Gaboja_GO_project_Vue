@@ -24,23 +24,21 @@
                 </b-col>
             </b-row>
 
-            <div class="accordion" role="tablist">
+            <div class="accordion " role="tablist">
                 <b-card no-body class="mb-1" v-for="article in articles" :key="article.articleNo" v-bind="article">
-                    <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="article.articleNo.toString()">
+                    <b-card-header header-tag="header" class="p-1 head" role="tab" v-b-toggle="article.articleNo.toString()">
                         <div class="qnaList">
-                            <b-icon icon="question-circle" font-scale="1.2"></b-icon> {{ article.subject }}
-                                <p v-if="article.isAnswer == 'Y'">
-                                    <b-list-group-item class="d-flex justify-content-between align-items-center">
-                                    <b-icon icon="check-square" scale="2" variant="success"></b-icon>
+                            <span class="left-text">
+                                <b-icon icon="question-circle" font-scale="1.2"></b-icon> {{ article.subject }}
+                            </span>
+                            <span v-if="article.isAnswer == 'Y'" class="right-text">
+                                <b-icon icon="check-circle" scale="1.2" variant="success"></b-icon>
                                     답변완료
-                                    </b-list-group-item>
-                                </p>
-                                <P v-else>
-                                    <b-list-group-item class="d-flex justify-content-between align-items-center">
-                                    <b-icon icon="x-circle" scale="2" variant="danger"></b-icon>
-                                    답변대기
-                                    </b-list-group-item>
-                                </P>
+                            </span>
+                            <span v-else class="right-text">
+                                <b-icon icon="x-circle" scale="1.2" variant="danger" ></b-icon>
+                                답변대기
+                            </span>
                         </div>
                     </b-card-header>
                     <b-collapse :id="article.articleNo.toString()" accordion="my-accordion" role="tabpanel" class="cols">
@@ -215,5 +213,16 @@ export default {
 <style>
 .qnaList {
     padding: 1%;
+}
+.left-text {
+  float: left;
+}
+
+.right-text {
+  float: right;
+}
+.head{
+    background-color: white;
+    padding: 1rem !important;
 }
 </style>

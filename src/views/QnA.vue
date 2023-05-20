@@ -12,9 +12,6 @@
 <script>
 export default {
   name: "QnA",
-  props: {
-    
-  },
   data() {
     return {
       searchParam: {
