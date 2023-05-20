@@ -34,6 +34,11 @@
               ><b-icon icon="truck" font-scale="1.5"></b-icon> 여행정보</router-link
             ></b-nav-item
           >
+          <b-nav-item href="#"
+            ><router-link :to="{ name: 'travelplan' }" class="link"
+              ><b-icon icon="truck" font-scale="1.5"></b-icon> 여행계획</router-link
+            ></b-nav-item
+          >
         </b-navbar-nav>
 
         <!-- after login -->

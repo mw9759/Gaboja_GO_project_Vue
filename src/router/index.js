@@ -72,6 +72,20 @@ const routes = [
       },
     ],
   },
+    {
+    path: "/travelplan",
+    name: "travelplan",
+    component: () => import(/* webpackChunkName: "travelplan" */ "@/views/TravelPlanView.vue"),
+    redirect: "/travelplan/list",
+    children: [
+      {
+        path: "list",
+        name: "travelplanlist",
+        component: () =>
+          import(/* webpackChunkName: "QnA" */ "@/components/travelplan/TravelPlanList"),
+      },
+    ]
+  },
 ];
 
 const router = new VueRouter({
