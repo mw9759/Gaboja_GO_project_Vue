@@ -5,7 +5,8 @@
                 <b-col cols="12" class="board-top">
                     <b-row class="mb-2 d-flex justify-content-between">
                         <b-col cols="auto">
-                            <router-link v-if="userInfo && userInfo.userId != 'admin'" :to="{ name: 'qnawrite' }"><b-button
+                            <router-link v-if="userInfo && userInfo.userId != 'admin'"
+                                :to="{ name: 'qnawrite' }"><b-button
                                     variant="outline-secondary">글쓰기</b-button></router-link>
                         </b-col>
                         <b-col cols="auto" class="d-flex">
@@ -13,7 +14,7 @@
                                 <b-form-select :options="option" v-model="searchParam_list.key"
                                     style="width: 100px"></b-form-select>
                                 <span style="margin: 0 5px"></span>
-                                <b-form-input v-model="searchParam_list.word" style="width: 50%"
+                                <b-form-input v-model="searchParam_list.word" style="width: 300px"
                                     placeholder="검색어..."></b-form-input>
                                 <span style="margin: 0 5px"></span>
                                 <b-button variant="outline-secondary" id="btn-search" class="w-auto text-nowrap"
@@ -23,84 +24,40 @@
                     </b-row>
                 </b-col>
             </b-row>
-
-            <div class="accordion" role="tablist">
-                <b-card no-body class="mb-1" v-for="article in articles" :key="article.articleNo" v-bind="article">
-                    <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="article.articleNo.toString()">
+                
+                <div class="accordion" role="tablist">
+                    <b-card no-body class="mb-1" v-for="(article, index) in articles" :key="index" v-bind="article" v-b-toggle="article.articleNo.toString()">
+                    <b-card-header header-tag="header" class="p-1" role="tab">
                         <div class="qnaList">
-                            <b-icon icon="question-circle" font-scale="1.2"></b-icon> {{ article.subject }}
-                                <p v-if="article.isAnswer == 'Y'">
-                                    <b-list-group-item class="d-flex justify-content-between align-items-center">
-                                    <b-icon icon="check-square" scale="2" variant="success"></b-icon>
-                                    답변완료
-                                    </b-list-group-item>
-                                </p>
-                                <P v-else>
-                                    <b-list-group-item class="d-flex justify-content-between align-items-center">
-                                    <b-icon icon="x-circle" scale="2" variant="danger"></b-icon>
-                                    답변대기
-                                    </b-list-group-item>
-                                </P>
-                        </div>
+                            <b-icon icon="question-circle" font-scale="1.2"></b-icon> {{article.subject}}</div>
                     </b-card-header>
                     <b-collapse :id="article.articleNo.toString()" accordion="my-accordion" role="tabpanel" class="cols">
                         <b-card-body>
-                            <b-card-text>{{ article.content }} 
-                            </b-card-text>
+                        <b-card-text>{{ article.content }}</b-card-text>
                         </b-card-body>
                         <b-card-body class="text-right">
-                            작성자: {{ article.userId }} | 작성일: {{ article.registerTime }}
-                            <router-link v-if="userInfo && userInfo.userId == article.userId"
-                                :to="{ name: 'qnamodify', params: { article: article } }"><b-button size="sm"
-                                    style="margin-right: 1%;" variant="outline-primary">수정하기</b-button></router-link>
-                            <b-button size="sm" v-if="userInfo && userInfo.userId == article.userId"
-                                variant="outline-secondary" @click="deleteQnA(article.articleNo)">
-                                글삭제
-                            </b-button>
+                        작성자: {{ article.userId }} | 작성일: {{ article.registerTime }}
+                        <router-link v-if="userInfo && userInfo.userId != 'admin'"
+                                :to="{ name: 'qnawrite' }"><b-button size="sm" style="margin-right: 1%;"  
+                                    variant="outline-primary">수정하기</b-button></router-link>
+
+                        <router-link v-if="userInfo && userInfo.userId != 'admin'"
+                                :to="{ name: 'ㅋㅋ' }"><b-button size="sm"
+                                    variant="outline-secondary">삭제하기</b-button></router-link>
+
                         </b-card-body>
-
-                        <div v-for="articler in articlesResult" :key="articler.articleNo">
-                            <div v-if="articler.articleNo == article.articleNo">
-                                <b-card-body v-if="article.isAnswer == 'N' && userInfo.userId != 'admin'"></b-card-body>
-                                <b-card-body style="border-top: 1px solid #ced4da; border-radius: 20px;"
-                                    v-else>
-                                    <div class="text-left">
-                                        <label class="form-label" style="font-size: 1.5rem"> 답변 : </label>
-                                        <b-form-textarea :readonly="userInfo.userId !== 'admin' ? true : false"
-                                            v-model="articler.content" rows="6"></b-form-textarea>
-                                    </div>
-
-                                    <div class="text-right mt-3"
-                                        v-if="userInfo && userInfo.userId == 'admin' && article.isAnswer == 'N'">
-                                        <b-button variant="outline-primary" @click="answer(article.articleNo, articler.content)">
-                                            답글작성
-                                        </b-button>
-                                    </div>
-
-                                    <div class="text-right mt-3"
-                                        v-else-if="userInfo && userInfo.userId == 'admin' && article.isAnswer == 'Y'">
-                                        <b-button variant="outline-primary" @click="answer(article.articleNo, articler.content)" style="margin-right: 1%;">
-                                            답글수정
-                                        </b-button>
-                                        <b-button variant="outline-secondary" @click="changeAnswer(article.articleNo)">
-                                            답글삭제
-                                        </b-button>
-                                    </div>
-                                </b-card-body>
-                            </div>
-                        </div>
                     </b-collapse>
-                </b-card>
+                    </b-card>
 
-            </div>
+                </div>
 
-            <b-pagination v-model="searchParam_list.pg" :total-rows="rows" :per-page="searchParam.spp"
-                aria-controls="my-table" @input="search" class="justify-content-center mt-5"></b-pagination>
-
+                <b-pagination v-model="searchParam_list.pg" :total-rows="rows" :per-page="searchParam.spp"
+                    aria-controls="my-table" @input="search"></b-pagination>
+            
         </b-container>
     </div>
 </template>
-  
+
 <script>
 import http from "@/api/http";
 import { mapState } from "vuex";
@@ -121,7 +78,6 @@ export default {
     data() {
         return {
             articles: [],
-            articlesResult: [],
             searchParam_list: {
                 key: this.searchParam.key,
                 word: this.searchParam.word,
@@ -164,47 +120,7 @@ export default {
                     this.articles = response.data;
                 });
             this.total();
-            this.searchResult();
-
         },
-        deleteQnA(articleNo) {
-            http.delete(`/qna/delete/${articleNo}`);
-            this.articles = this.articles.filter(tag => tag.articleNo !== articleNo);
-            this.deleteQnAResult(articleNo);
-        },
-        deleteQnAResult(articleNo) {
-            http.delete(`/qna/deleteresult/${articleNo}`);
-        },
-        searchResult() {
-            http
-                .get("/qna/listr", {
-                    params: {
-                        key: this.searchParam_list.key,
-                        word: this.searchParam_list.word,
-                        pg: this.searchParam_list.pg,
-                    },
-                })
-                .then((response) => {
-                    this.articlesResult = response.data;
-                    console.log(response.data);
-                });
-        },
-        answer(articleNo, content) {
-            http.put(`/qna/modifyresult`, {
-                    content: content,
-                    articleNo: articleNo,
-            });
-            this.updateIsAnswered(articleNo);
-            window.location.reload();
-        },
-        updateIsAnswered(articleNo) {
-            http.put(`/qna/updateIsAnswered/${articleNo}`);
-        },
-        changeAnswer(articleNo) {
-            this.answer(articleNo);
-            http.put(`/qna/updateNoAnswered/${articleNo}`);
-            window.location.reload();
-        }
     },
     created() {
         this.search();
@@ -213,7 +129,9 @@ export default {
 </script>
 
 <style>
-.qnaList {
-    padding: 1%;
-}
+    
+    .qnaList{
+        padding: 1%;
+        
+    }
 </style>
