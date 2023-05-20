@@ -11,19 +11,20 @@
         <div>{{ trip }}</div>
         <div>
           <span class="mr-2"></span>
-          <b-button variant="primary">이동</b-button>
+          <b-button variant="primary" @click="openPlan(trip)">이동</b-button>
           <span class="mr-2"></span>
-          <b-button variant="danger">삭제</b-button>
+          <b-button variant="danger" @click="removePlan(trip)">삭제</b-button>
         </div>
       </div>
       <!-- 추가버튼 -->
-      <b-button variant="outline-success" class="mt-2" @click="createPlan">추가</b-button>
+      <b-button variant="outline-success" class="mt-2" v-b-modal.modal-append>추가</b-button>
     </div>
 
     <!-- modal -->
     <b-modal
+      id="modal-append"
       ref="modal"
-      title="Submit Your Name"
+      title="여행 계획 생성"
       @show="resetModal"
       @hidden="resetModal"
       @ok="handleOk"
@@ -51,6 +52,9 @@ export default {
   data() {
     return {
       trips: [],
+      name: "",
+      nameState: null,
+      message: "",
     };
   },
   computed: {
@@ -58,6 +62,7 @@ export default {
   },
   methods: {
     getList() {
+      this.trips = [];
       http
         .get("/travelplan/list", {
           params: {
@@ -66,10 +71,62 @@ export default {
         })
         .then((response) => {
           this.trips = response.data;
+          this.$nextTick(() => {});
         });
     },
-    createPlan() {
-      //작성중
+    removePlan(name) {
+      http.delete("/travelplan/remove", {
+        data: {
+          userId: this.userInfo.userId,
+          planName: name,
+        },
+      });
+
+      location.reload();
+    },
+    openPlan(name) {
+      this.$router.push({
+        path: "view",
+        query: {
+          name: name,
+        },
+      });
+    },
+    checkFormValidity() {
+      const valid = this.$refs.form.checkValidity();
+      this.nameState = valid;
+      return valid;
+    },
+    resetModal() {
+      this.name = "";
+      this.nameState = null;
+    },
+    handleOk(bvModalEvent) {
+      bvModalEvent.preventDefault();
+      this.handleSubmit();
+    },
+    handleSubmit() {
+      if (!this.checkFormValidity()) {
+        return;
+      }
+
+      //this.$nextTick(() => {
+      this.$bvModal.hide("modal-append");
+      //});
+
+      http
+        .post("/travelplan/create", {
+          userId: this.userInfo.userId,
+          planName: this.name,
+        })
+        .then((response) => {
+          if (response.data === false) {
+            alert("생성에 실패했습니다.");
+          } else {
+            alert("생성에 성공했습니다.");
+            location.reload();
+          }
+        });
     },
   },
   created() {

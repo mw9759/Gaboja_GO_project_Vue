@@ -29,16 +29,14 @@ const routes = [
       {
         path: "list",
         name: "qnalist",
-        component: () =>
-          import(/* webpackChunkName: "QnA" */ "@/components/qna/QnAList"),
+        component: () => import(/* webpackChunkName: "QnA" */ "@/components/qna/QnAList"),
       },
       {
         path: "write",
         name: "qnawrite",
-        component: () =>
-          import(/* webpackChunkName: "QnA" */ "@/components/qna/QnAWrite"),
+        component: () => import(/* webpackChunkName: "QnA" */ "@/components/qna/QnAWrite"),
       },
-    ]
+    ],
   },
   {
     path: "/adminboard",
@@ -72,7 +70,7 @@ const routes = [
       },
     ],
   },
-    {
+  {
     path: "/travelplan",
     name: "travelplan",
     component: () => import(/* webpackChunkName: "travelplan" */ "@/views/TravelPlanView.vue"),
@@ -82,9 +80,15 @@ const routes = [
         path: "list",
         name: "travelplanlist",
         component: () =>
-          import(/* webpackChunkName: "QnA" */ "@/components/travelplan/TravelPlanList"),
+          import(/* webpackChunkName: "travelplan" */ "@/components/travelplan/TravelPlanList"),
       },
-    ]
+      {
+        path: "view",
+        name: "travelplanview",
+        component: () =>
+          import(/* webpackChunkName: "travelplan" */ "@/components/travelplan/TravelPlanView"),
+      },
+    ],
   },
 ];
 
