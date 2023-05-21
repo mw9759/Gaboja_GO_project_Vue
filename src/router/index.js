@@ -45,7 +45,7 @@ const routes = [
   {
     path: "/userBoard",
     name: "userBoard",
-    component: () => import(/* webpackChunkName: "login_join" */ "@/views/UserBoard.vue"),
+    component: () => import(/* webpackChunkName: "userBoard" */ "@/views/UserBoard.vue"),
     redirect: "/userBoard/list",
     children: [
       {
@@ -53,7 +53,14 @@ const routes = [
         name: "userboardlist",
         beforeEnter: onlyAuthUser,
         component: () =>
-          import(/* webpackChunkName: "QnA" */ "@/components/userboard/UserBoardList"),
+          import(/* webpackChunkName: "userBoard" */ "@/components/userboard/UserBoardList"),
+      },
+      {
+        path: "write",
+        name: "userboardwrite",
+        beforeEnter: onlyAuthUser,
+        component: () =>
+          import(/* webpackChunkName: "userBoard" */ "@/components/userboard/UserBoardWrite"),
       },
     ],
   },

@@ -1,20 +1,64 @@
 <template>
     <b-container>
-        <ul class=" row mt-3">
-            <li class="card col-lg-4 col-md-4 row_div_cell" v-for="article in articles" :key="article.articleNo">
-                <div>
-                    <div class="card__image card__image--flowers"></div>
-                    <div class="card__content">
-                        <div class="card__title">{{article.subject}}</div>
-                        <p class="card__text">작성자: {{article.userId}}</p>
-                        <p class="card__text">내용: {{article.content}}</p>
-                        <p class="card__text">등록일: {{article.registerTime}}</p>
-                        <p class="card__text">조회수: {{article.hit}}</p>
-                        <button class="btn btn--block card__btn">Button</button>
+        <b-row class="justify-content-center" style="margin-top: 10px">
+            <b-col cols="12" class="board-top">
+                <b-row class="mb-2 d-flex justify-content-between">
+                    <b-col cols="auto">
+                        <router-link :to="{ name: 'userboardwrite' }">
+                            <b-button variant="outline-primary">
+                                글쓰기
+                            </b-button>
+                        </router-link>
+                    </b-col>
+                    <b-col cols="auto" class="d-flex">
+                        <b-form class="d-flex align-items-center" id="form-search">
+                            <b-form-select :options="option" v-model="searchParam_list.key"
+                                style="width: 100px"></b-form-select>
+                            <span style="margin: 0 5px"></span>
+                            <b-form-input v-model="searchParam_list.word" style="width: 50%"
+                                placeholder="검색어..."></b-form-input>
+                            <span style="margin: 0 5px"></span>
+                            <b-button variant="outline-secondary" id="btn-search" class="w-auto text-nowrap"
+                                @click="search">검색</b-button>
+                        </b-form>
+                    </b-col>
+                </b-row>
+            </b-col>
+        </b-row>
+
+        <div class="gallery">
+            <div v-for="article in articles" :key="article.articleNo">
+                <div class="gallery-item" tabindex="0" >
+
+                    <img src="https://images.unsplash.com/photo-1497445462247-4330a224fdb1?w=500&h=500&fit=crop"
+                        class="gallery-image" alt="">
+
+                    <div class="gallery-item-info">
+
+                        <ul>
+                            <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i class="fas fa-heart"
+                                    aria-hidden="true"></i> 89</li>
+                            <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
+                                    class="fas fa-comment" aria-hidden="true"></i> 5</li>
+                        </ul>
+
                     </div>
                 </div>
-            </li>
-        </ul>
+                <div>
+                    <div class="card__title">{{ article.subject }}</div>
+                    <p class="card__text">작성자: {{ article.userId }}</p>
+                    <p class="card__text">내용: {{ article.content }}</p>
+                    <p class="card__text">등록일: {{ article.registerTime }}</p>
+                    <p class="card__text">조회수: {{ article.hit }}</p>
+                    <button class="btn btn--block card__btn">Button</button>
+                </div>
+            </div>
+
+        </div>
+
+
+        <b-pagination v-model="searchParam_list.pg" :total-rows="rows" :per-page="searchParam.spp" aria-controls="my-table"
+            @input="search" class="justify-content-center mt-5"></b-pagination>
     </b-container>
 </template>
 
@@ -22,38 +66,89 @@
 import http from "@/api/http";
 export default ({
     name: "UserBoardList",
-
+    props: {
+        searchParam: {
+            type: Object,
+        },
+    },
     data() {
         return {
             articles: [],
+            searchParam_list: {
+                key: this.searchParam.key,
+                word: this.searchParam.word,
+                spp: this.searchParam.spp,
+                pg: this.searchParam.pg,
+                num: this.searchParam.num,
+            },
+            option: [
+                { value: "subject", text: "제목" },
+                { value: "article_no", text: "글번호" },
+                { value: "user_id", text: "아이디" },
+            ],
         }
     },
     computed: {
+        rows() {
+            return this.searchParam_list.num;
+        },
     },
     watch: {
 
     },
     methods: {
+        total() {
+            http
+                .get("/userboard/total", {
+                    params: {
+                        key: this.searchParam_list.key,
+                        word: this.searchParam_list.word,
+                    },
+                })
+                .then((response) => {
+                    this.searchParam_list.num = response.data;
+                    this.$emit("search", this.searchParam_list);
+                });
+        },
+        search() {
+            http
+                .get("/userboard/list", {
+                    params: {
+                        key: this.searchParam_list.key,
+                        word: this.searchParam_list.word,
+                        pg: this.searchParam_list.pg,
+                    },
+                })
+                .then((response) => {
+                    this.articles = response.data;
+                });
+            this.total();
+        },
+    },
+    created() {
+        this.search();
     },
 
-    beforeMount() {
-
-        http
-            .get("/userboard/list")
-            .then((response) => {
-                this.articles = response.data;
-            });
-    }
 })
 
 </script>
-<style scoped lang="less">
-@gray-darker: #444444;
-@gray-dark: #696969;
-@gray: #999999;
-@gray-light: #cccccc;
-@gray-lighter: #ececec;
-@gray-lightest: lighten(@gray-lighter, 4%);
+<style scoped>
+/*인스타그램폼*/
+/*
+
+All grid code is placed in a 'supports' rule (feature query) at the bottom of the CSS (Line 310). 
+        
+The 'supports' rule will only run if your browser supports CSS grid.
+
+Flexbox and floats are used as a fallback so that browsers which don't support grid will still recieve a similar layout.
+
+*/
+
+/* Base Styles */
+
+:root {
+    font-size: 10px;
+}
 
 *,
 *::before,
@@ -61,118 +156,361 @@ export default ({
     box-sizing: border-box;
 }
 
-html {
-    background-color: #f0f0f0;
-}
-
 body {
-    color: @gray;
-    font-weight: 400;
-    letter-spacing: 0;
-    padding: 1rem;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -moz-font-feature-settings: "liga" on;
+    font-family: "Open Sans", Arial, sans-serif;
+    min-height: 100vh;
+    background-color: #fafafa;
+    color: #262626;
+    padding-bottom: 3rem;
 }
 
 img {
-    height: auto;
-    max-width: 100%;
-    vertical-align: middle;
+    display: block;
+}
+
+.container {
+    max-width: 93.5rem;
+    margin: 0 auto;
+    padding: 0 2rem;
 }
 
 .btn {
-    background-color: white;
-    border: 1px solid @gray-light;
-    //border-radius: 1rem;
-    color: @gray-dark;
-    padding: 0.5rem;
-    text-transform: lowercase;
+    display: inline-block;
+    font: inherit;
+    background: none;
+    border: none;
+    color: inherit;
+    padding: 0;
+    cursor: pointer;
 }
 
-.btn--block {
+.btn:focus {
+    outline: 0.5rem auto #4d90fe;
+}
+
+.visually-hidden {
+    position: absolute !important;
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+}
+
+/* Profile Section */
+
+.profile {
+    padding: 5rem 0;
+}
+
+.profile::after {
+    content: "";
     display: block;
-    width: 100%;
+    clear: both;
 }
 
-.cards {
+.profile-image {
+    float: left;
+    width: calc(33.333% - 1rem);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 3rem;
+}
+
+.profile-image img {
+    border-radius: 50%;
+}
+
+.profile-user-settings,
+.profile-stats,
+.profile-bio {
+    float: left;
+    width: calc(66.666% - 2rem);
+}
+
+.profile-user-settings {
+    margin-top: 1.1rem;
+}
+
+.profile-user-name {
+    display: inline-block;
+    font-size: 3.2rem;
+    font-weight: 300;
+}
+
+.profile-edit-btn {
+    font-size: 1.4rem;
+    line-height: 1.8;
+    border: 0.1rem solid #dbdbdb;
+    border-radius: 0.3rem;
+    padding: 0 2.4rem;
+    margin-left: 2rem;
+}
+
+.profile-settings-btn {
+    font-size: 2rem;
+    margin-left: 1rem;
+}
+
+.profile-stats {
+    margin-top: 2.3rem;
+}
+
+.profile-stats li {
+    display: inline-block;
+    font-size: 1.6rem;
+    line-height: 1.5;
+    margin-right: 4rem;
+    cursor: pointer;
+}
+
+.profile-stats li:last-of-type {
+    margin-right: 0;
+}
+
+.profile-bio {
+    font-size: 1.6rem;
+    font-weight: 400;
+    line-height: 1.5;
+    margin-top: 2.3rem;
+}
+
+.profile-real-name,
+.profile-stat-count,
+.profile-edit-btn {
+    font-weight: 600;
+}
+
+/* Gallery Section */
+
+.gallery {
     display: flex;
     flex-wrap: wrap;
-    list-style: none;
-    margin: 0;
-    padding: 0;
+    margin: -1rem -1rem;
+    padding-bottom: 3rem;
 }
 
-
-
-.card {
-    background-color: white;
-    border-radius: 0.25rem;
-    box-shadow: 0 20px 40px -14px rgba(0, 0, 0, 0.25);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-
-    &:hover {
-        .card__image {
-            filter: contrast(100%);
-            transform: scale(1.1);
-            transition: transform 0.3s ease;
-        }
-    }
-}
-
-.card__content {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    padding: 1rem;
-}
-
-.card__image {
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    border-top-left-radius: 0.25rem;
-    border-top-right-radius: 0.25rem;
-    filter: contrast(70%);
-    //filter: saturate(180%);
-    overflow: hidden;
+.gallery-item {
     position: relative;
-    transition: filter 0.5s cubic-bezier(.43, .41, .22, .91);
-    ;
+    flex: 1 0 22rem;
+    margin: 1rem;
+    color: #fff;
+    cursor: pointer;
+}
 
-    &::before {
-        content: "";
-        display: block;
-        padding-top: 56.25%; // 16:9 aspect ratio
+.gallery-item:hover .gallery-item-info,
+.gallery-item:focus .gallery-item-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.gallery-item-info {
+    display: none;
+}
+
+.gallery-item-info li {
+    display: inline-block;
+    font-size: 1.7rem;
+    font-weight: 600;
+}
+
+.gallery-item-likes {
+    margin-right: 2.2rem;
+}
+
+.gallery-item-type {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2.5rem;
+    text-shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.1);
+}
+
+.fa-clone,
+.fa-comment {
+    transform: rotateY(180deg);
+}
+
+.gallery-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Loader */
+
+.loader {
+    width: 5rem;
+    height: 5rem;
+    border: 0.6rem solid #999;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    margin: 0 auto;
+    animation: loader 500ms linear infinite;
+}
+
+/* Media Query */
+
+@media screen and (max-width: 40rem) {
+    .profile {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 4rem 0;
     }
 
-    @media(min-width: 40rem) {
-        &::before {
-            padding-top: 66.6%; // 3:2 aspect ratio
+    .profile::after {
+        display: none;
+    }
+
+    .profile-image,
+    .profile-user-settings,
+    .profile-bio,
+    .profile-stats {
+        float: none;
+        width: auto;
+    }
+
+    .profile-image img {
+        width: 7.7rem;
+    }
+
+    .profile-user-settings {
+        flex-basis: calc(100% - 10.7rem);
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+
+    .profile-user-name {
+        font-size: 2.2rem;
+    }
+
+    .profile-edit-btn {
+        order: 1;
+        padding: 0;
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .profile-edit-btn {
+        margin-left: 0;
+    }
+
+    .profile-bio {
+        font-size: 1.4rem;
+        margin-top: 1.5rem;
+    }
+
+    .profile-edit-btn,
+    .profile-bio,
+    .profile-stats {
+        flex-basis: 100%;
+    }
+
+    .profile-stats {
+        order: 1;
+        margin-top: 1.5rem;
+    }
+
+    .profile-stats ul {
+        display: flex;
+        text-align: center;
+        padding: 1.2rem 0;
+        border-top: 0.1rem solid #dadada;
+        border-bottom: 0.1rem solid #dadada;
+    }
+
+    .profile-stats li {
+        font-size: 1.4rem;
+        flex: 1;
+        margin: 0;
+    }
+
+    .profile-stat-count {
+        display: block;
+    }
+}
+
+/* Spinner Animation */
+
+@keyframes loader {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/*
+
+The following code will only run if your browser supports CSS grid.
+
+Remove or comment-out the code block below to see how the browser will fall-back to flexbox & floated styling. 
+
+*/
+
+@supports (display: grid) {
+    .profile {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        grid-template-rows: repeat(3, auto);
+        grid-column-gap: 3rem;
+        align-items: center;
+    }
+
+    .profile-image {
+        grid-row: 1 / -1;
+    }
+
+    .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+        grid-gap: 2rem;
+    }
+
+    .profile-image,
+    .profile-user-settings,
+    .profile-stats,
+    .profile-bio,
+    .gallery-item,
+    .gallery {
+        width: auto;
+        margin: 0;
+    }
+
+    @media (max-width: 40rem) {
+        .profile {
+            grid-template-columns: auto 1fr;
+            grid-row-gap: 1.5rem;
+        }
+
+        .profile-image {
+            grid-row: 1 / 2;
+        }
+
+        .profile-user-settings {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-gap: 1rem;
+        }
+
+        .profile-edit-btn,
+        .profile-stats,
+        .profile-bio {
+            grid-column: 1 / -1;
+        }
+
+        .profile-user-settings,
+        .profile-edit-btn,
+        .profile-settings-btn,
+        .profile-bio,
+        .profile-stats {
+            margin: 0;
         }
     }
 }
-
-.card__image--flowers {
-    background-image: url(https://unsplash.it/800/600?image=82);
-}
-
-
-
-.card__title {
-    color: @gray-dark;
-    font-size: 1.25rem;
-    font-weight: 300;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-}
-
-.card__text {
-    flex: 1 1 auto;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    margin-bottom: 1.25rem;
-}</style>
+</style>
