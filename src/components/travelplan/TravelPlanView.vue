@@ -1,94 +1,104 @@
 <template>
   <div>
-    <b-tabs card>
-      <b-tab v-for="i in tabs" :key="'dyn-tab-' + i" :title="'Day ' + (i + 1)">
-        <div class="d-flex justify-content-start mb-3">
-          <b-button size="sm" variant="danger" class="float-right" @click="closeTab(i)">
-            삭제
-          </b-button>
-          <b-button size="sm" variant="primary" class="float-right ml-1"> 저장 </b-button>
-        </div>
-        <div class="wrap">
-          <!-- 지도 -->
-          <div class="map_controller">
-            <b-form class="d-flex" style="margin-bottom: 5px" @submit.prevent="submitForm">
-              <b-form-select
-                v-model="formData.searchArea"
-                :options="options_area"
-                class="mr-1"
-              ></b-form-select>
-              <b-form-select
-                v-model="formData.sortType"
-                :options="options_type"
-                class="mr-1"
-              ></b-form-select>
-              <b-form-select
-                v-model="formData.searchContentId"
-                :options="options_content"
-                class="mr-1"
-              ></b-form-select>
-              <b-form-input v-model="formData.searchKeyword" class="mr-1"></b-form-input>
-              <b-button type="submit" variant="outline-secondary" style="width: 200px">
-                검색
-              </b-button>
-            </b-form>
-            <div id="map" style="width: 80%; height: 650px; margin-left: 10%"></div>
-          </div>
-          <!-- 계획 -->
-          <div class="plan">
-            <b-card
-              v-for="plan in plans"
-              :key="plan"
-              :img-src="plan.image"
-              img-alt="Card image"
-              img-left
-              style="height: 100px; margin-bottom: 5px"
-            >
-              <b-card-text>
-                {{ plan.title }}<br />
-                {{ plan.address }}
-              </b-card-text>
-            </b-card>
-          </div>
-        </div>
-        <!-- 목록 -->
-        <div>list</div>
-      </b-tab>
+    <!-- Tab -->
+    <div class="tab_controller">
+      <div>
+        <b-button pill variant="primary" class="mr-1">Button</b-button>
+        <b-button pill variant="outline-primary">new</b-button>
+      </div>
+    </div>
 
-      <template #tabs-end>
-        <b-nav-item role="presentation" @click.prevent="newTab" href="#"><b>+</b></b-nav-item>
-      </template>
-
-      <template #empty>
-        <div class="text-center text-muted">
-          There are no open tabs<br />
-          Open a new tab using the <b>+</b> button above.
+    <div class="wrap">
+      <!-- 지도 -->
+      <div class="map_controller">
+        <b-form class="d-flex" style="margin-bottom: 5px" @submit.prevent="submitForm">
+          <b-form-select
+            v-model="formData.searchArea"
+            :options="options_area"
+            class="mr-1"
+          ></b-form-select>
+          <b-form-select
+            v-model="formData.sortType"
+            :options="options_type"
+            class="mr-1"
+          ></b-form-select>
+          <b-form-select
+            v-model="formData.searchContentId"
+            :options="options_content"
+            class="mr-1"
+          ></b-form-select>
+          <b-form-input v-model="formData.searchKeyword" class="mr-1"></b-form-input>
+          <b-button type="submit" variant="outline-secondary" style="width: 200px"> 검색 </b-button>
+        </b-form>
+        <div id="map" style="width: 100%; height: 500px"></div>
+      </div>
+      <!-- 계획 -->
+      <div v-bar class="plan">
+        <div>
+          <b-card
+            v-for="(plan, index) in plans"
+            :key="index"
+            :img-src="plan.image"
+            img-alt="Card image"
+            img-left
+            style="height: 100px; margin-bottom: 5px"
+          >
+            <b-card-text>
+              {{ plan.title }}<br />
+              {{ plan.address }}
+            </b-card-text>
+          </b-card>
         </div>
-      </template>
-    </b-tabs>
+      </div>
+    </div>
+    <!-- 목록 -->
+    <div class="list">
+      <div class="row">
+        <table id="resultTable" class="table">
+          <thead style="background-color: aliceblue">
+            <tr>
+              <th>대표이미지</th>
+              <th>관광지명</th>
+              <th>주소</th>
+              <th style="width: 150px">현재 위치와의 거리</th>
+              <th style="display: none">위도</th>
+              <th style="display: none">경도</th>
+              <th>상세 설명</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in items" :key="item.contentId">
+              <td>
+                <img :src="item.firstImage" style="object-fit: cover" />
+              </td>
+              <td>{{ item.title }}</td>
+              <td>{{ item.addr1 }}</td>
+              <td>{{ item.distance }} km</td>
+              <td style="display: none">{{ item.latitude }}</td>
+              <td style="display: none">{{ item.longitude }}</td>
+              <td>{{ item.overview }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import http from "@/api/http";
 import Vue from "vue";
+import Vuebar from "vuebar";
+import http from "@/api/http";
 import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 
+Vue.use(Vuebar);
 Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);
 
 export default {
   name: "TravelPlanVeiw",
-  mounted() {
-    const script = document.createElement("script");
-    /* global kakao */
-    script.onload = () => kakao.maps.load(this.initMap);
-    script.src =
-      "http://dapi.kakao.com/v2/maps/sdk.js?appkey=509e8446f54aaa4ff63503311698321b&autoload=false";
-    document.head.appendChild(script);
-  },
   data() {
     return {
       formData: {
@@ -193,7 +203,26 @@ export default {
       ],
     };
   },
+  mounted() {
+    this.createMap();
+  },
   methods: {
+    createMap() {
+      const script = document.createElement("script");
+      /* global kakao */
+      script.onload = () => kakao.maps.load(this.initMap);
+      script.src =
+        "http://dapi.kakao.com/v2/maps/sdk.js?appkey=509e8446f54aaa4ff63503311698321b&autoload=false";
+      document.head.appendChild(script);
+    },
+    initMap() {
+      const container = document.getElementById("map");
+      const options = {
+        center: new kakao.maps.LatLng(37.500613, 127.036431),
+        level: 7,
+      };
+      this.map = new kakao.maps.Map(container, options);
+    },
     closeTab(x) {
       for (let i = 0; i < this.tabs.length; i++) {
         if (this.tabs[i] === x) {
@@ -202,29 +231,25 @@ export default {
       }
     },
     newTab() {
-      this.tabs.push(this.tabCounter++);
+      this.tabs.push({ index: this.tabCounter, id: this.tabCounter, map: null });
+      this.tabCounter++;
+      this.createMap(this.tabCounter - 1);
     },
     // 관광지 리스트 출력
     submitForm() {
-      http
-        .post("/tripsearch/list", this.formData)
-        .then((response) => {
-          this.items = response.data;
-          this.makeMarker(this.items);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-
-    // 카카오지도
-    initMap() {
-      const container = document.getElementById("map");
-      const options = {
-        center: new kakao.maps.LatLng(37.500613, 127.036431),
-        level: 7,
-      };
-      this.map = new kakao.maps.Map(container, options);
+      if (this.formData.searchArea === "" || this.formData.searchArea === null) {
+        alert("검색할 지역을 선택해주세요");
+      } else {
+        http
+          .post("/tripsearch/list", this.formData)
+          .then((response) => {
+            this.items = response.data;
+            this.makeMarker(this.items);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
     },
 
     // 인포윈도우를 표시하는 클로저 생성
@@ -245,72 +270,49 @@ export default {
     // 마커 생성
     makeMarker() {
       this.removeMarker();
-
       let positions = [];
-
       for (var item of this.items) {
         positions.push({
-          content:
-            '<div class="info" v-on="moveCenter(' +
-            item.latitude +
-            ", " +
-            item.longitude +
-            ');">' +
-            '<div class="title">' +
-            item.title +
-            "</div>" +
-            '<div class="body">' +
-            '<div class="img">' +
-            '<img src="' +
-            item.firstImage +
-            '" width="73" height="70">' +
-            "</div>" +
-            "</div>" +
-            '<div class="desc">' +
-            '<div class="ellipsis">' +
-            item.addr2 +
-            "</div>" +
-            '<div class="jibun ellipsis">' +
-            item.addr1 +
-            "</div>" +
-            "</div>" +
-            "</div>",
+          content: `<div class="info" v-on="moveCenter(${item.latitude}, item.longitude);">
+                      <div class="title">${item.title}</div>
+                      <div class="body">
+                        <div class="img">
+                          <img src="${item.firstImage}" width="73" height="70">
+                        </div>
+                        <div class="desc">
+                          <div class="ellipsis">${item.addr2}</div>
+                          <div class="jibun ellipsis">${item.addr1}</div>
+                        </div>
+                      </div>
+                    </div>`,
           title: item.title,
-          latlng: new kakao.maps.LatLng(item.latitude, item.longitude),
+          latlng: new window.kakao.maps.LatLng(item.latitude, item.longitude),
         });
       }
-
       for (var i = 0; i < positions.length; i++) {
-        var marker = new kakao.maps.Marker({
+        var marker = new window.kakao.maps.Marker({
           map: this.map,
           position: positions[i].latlng,
           clickable: true,
         });
-
         this.markers.push(marker);
-
-        var iwContent = positions[i].content,
-          iwRemoveable = true;
-
-        var infowindow = new kakao.maps.InfoWindow({
+        var iwContent = positions[i].content;
+        var iwRemoveable = true;
+        var infowindow = new window.kakao.maps.InfoWindow({
           content: iwContent,
           removable: iwRemoveable,
         });
-
-        kakao.maps.event.addListener(
+        window.kakao.maps.event.addListener(
           marker,
           "click",
           this.makeOverListener(this.map, marker, infowindow)
         );
-        // kakao.maps.event.addListener(marker, "mouseout", makeOutListener(infowindow));
       }
-
       this.map.setCenter(positions[0].latlng);
     },
-
     // 중심 이동
     moveCenter(lat, lng) {
-      this.map.setCenter(new kakao.maps.LatLng(lat, lng));
+      this.map.setCenter(new window.kakao.maps.LatLng(lat, lng));
     },
   },
 };
@@ -319,27 +321,43 @@ export default {
 <style scoped>
 .wrap {
   display: flex;
+  padding: 5px 20px 5px 20px;
 }
 .test {
   height: 500px;
   background-color: lightgrey;
 }
+.tab_controller {
+  margin: 20px 20px 0px 20px;
+  padding: 2px;
+  border: solid 2px gray;
+  background-color: lightgoldenrodyellow;
+  border-radius: 5px;
+  overflow: auto;
+  white-space: nowrap;
+}
 .map_controller {
   padding: 5px 5px 5px 5px;
-  margin-right: 5px;
   border: solid 2px gray;
-  border-radius: 5px;
   background-color: lightgoldenrodyellow;
+  border-radius: 5px;
+  margin-right: 5px;
   flex: 2;
 }
 .plan {
   padding: 5px 5px 0px 5px;
   border: solid 2px gray;
-  border-radius: 5px;
   background-color: lightgoldenrodyellow;
-  flex: 1;
+  border-radius: 5px;
   max-height: 558px;
   overflow-y: auto;
+  flex: 1;
+}
+.list {
+  margin: 0px 20px 20px 20px;
+  border: solid 2px gray;
+  background-color: lightgoldenrodyellow;
+  border-radius: 5px;
 }
 b-card {
   margin-bottom: 5px;
