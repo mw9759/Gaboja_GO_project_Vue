@@ -36,8 +36,8 @@ export default {
         },
     },
     computed: {
-        ...mapState("memberStore", ["isLogin", "userInfo"]),
-    },
+       ...mapState("memberStore", ["isLogin", "userInfo"]),
+    }, 
     name: "AdminBoardWrite",
     data() {
         return {
@@ -71,11 +71,7 @@ export default {
         // 게시글 작성시 답변테이블에도 틀만 만들어준다.
         write_result() {
             http.post("/qna/writeresult")
-        },
-
-        list() {
-            this.$router.push({ name: "qnalist" });
-        },
+        }
     },
 };
 </script>
