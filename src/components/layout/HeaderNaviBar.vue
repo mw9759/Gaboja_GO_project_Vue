@@ -25,8 +25,8 @@
             ></b-nav-item
           >
           <b-nav-item href="#"
-            ><router-link :to="{ name: 'house' }" class="link"
-              ><b-icon icon="house-fill" font-scale="1.5"></b-icon> 여행상품</router-link
+            ><router-link :to="{ name: 'userboardlist' }" class="link"
+              ><b-icon icon="clipboard" font-scale="1.5"></b-icon> 커뮤니티</router-link
             ></b-nav-item
           >
           <b-nav-item href="#"
