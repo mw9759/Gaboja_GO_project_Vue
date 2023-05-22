@@ -83,13 +83,22 @@
             style="display: inline-block; width: 25%"
             v-model="formData.searchKeyword"
           />
-          <input id="btn_search" class="btn btn-dark" type="submit" value="검색" />
+          <input
+            id="btn_search"
+            class="btn btn-dark"
+            type="submit"
+            value="검색"
+          />
         </form>
       </div>
     </section>
     <div id="map" style="width: 80%; height: 650px; margin-left: 10%"></div>
     <div class="row">
-      <table id="resultTable" class="table table-striped" style="width: 80%; margin-left: 10%">
+      <table
+        id="resultTable"
+        class="table table-striped"
+        style="width: 80%; margin-left: 10%"
+      >
         <thead style="background-color: aliceblue">
           <tr>
             <th>대표이미지</th>
