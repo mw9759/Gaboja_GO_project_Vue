@@ -59,7 +59,7 @@
                         </b-carousel>
                     </div>
                     <div v-else>
-                        <b-carousel id="cars" v-model="slide" controls indicators background="#ababab" img-width="99%" 
+                        <b-carousel id="cars" v-model="slide" controls indicators background="#ababab" img-width="99%"
                             img-height="480" style="text-shadow: 1px 1px 2px #333;max-height: 480px;"
                             @sliding-start="onSlideStart" @sliding-end="onSlideEnd">
                             <!-- Text slides with image -->
@@ -104,30 +104,31 @@
                     </div>
 
                     <!-- 만약 사진을 올린경우-->
-                    <b-carousel v-if="pickedArticle.imgsIsExist == 'Y'" id="cars" v-model="pickedArticle.imgSlideNum" controls indicators background="#ababab"
-                            img-width="1024" img-height="480" style="text-shadow: 1px 1px 2px #333;" class="modal_carousel"
-                            @sliding-start="onSlideStart" @sliding-end="onSlideEnd">
-                            <div v-for="(img, index) in pickedArticlesImg" :key="index" class="gallery-item">
-                                <b-carousel-slide>
-                                    <template #img>
-                                        <img :src="img" alt="Image" class="image-container">
-                                    </template>
-                                </b-carousel-slide>
-                            </div>
+                    <b-carousel v-if="pickedArticle.imgsIsExist == 'Y'" id="cars" v-model="pickedArticle.imgSlideNum"
+                        controls indicators background="#ababab" img-width="1024" img-height="480"
+                        style="text-shadow: 1px 1px 2px #333;" class="modal_carousel" @sliding-start="onSlideStart"
+                        @sliding-end="onSlideEnd">
+                        <div v-for="(img, index) in pickedArticlesImg" :key="index" class="gallery-item">
+                            <b-carousel-slide>
+                                <template #img>
+                                    <img :src="img" alt="Image" class="image-container">
+                                </template>
+                            </b-carousel-slide>
+                        </div>
                     </b-carousel>
-                    
+
                     <!-- 만약 사진을 올리지 않은 경우-->
                     <b-carousel id="cars" v-model="pickedArticle.imgSlideNum" controls indicators background="#ababab"
-                            img-width="1024" img-height="480" style="text-shadow: 1px 1px 2px #333;" class="modal_carousel"
-                            @sliding-start="onSlideStart" @sliding-end="onSlideEnd" v-else>
-                            <div class="gallery-item">
-                                <b-carousel-slide>
-                                    <template #img>
-                                        <img src="https://images.unsplash.com/photo-1497445462247-4330a224fdb1?w=500&h=500&fit=crop"
-                                            alt="Image" class="image-container">
-                                    </template>
-                                </b-carousel-slide>
-                            </div>
+                        img-width="1024" img-height="480" style="text-shadow: 1px 1px 2px #333;" class="modal_carousel"
+                        @sliding-start="onSlideStart" @sliding-end="onSlideEnd" v-else>
+                        <div class="gallery-item">
+                            <b-carousel-slide>
+                                <template #img>
+                                    <img src="https://images.unsplash.com/photo-1497445462247-4330a224fdb1?w=500&h=500&fit=crop"
+                                        alt="Image" class="image-container">
+                                </template>
+                            </b-carousel-slide>
+                        </div>
                     </b-carousel>
 
                     <div class="articleInfo">
@@ -139,28 +140,31 @@
                                 <ul>
                                     <li class="gallery-item-likes"><b-icon icon="heart" font-scale="0.8"></b-icon> 89</li>
                                     <li class="gallery-item-likes"><b-icon icon="chat" font-scale="0.8"></b-icon> 5</li>
-                                    <li class="gallery-item-comments"><b-icon icon="eye" font-scale="0.8"></b-icon> {{ pickedArticle.hit }}</li>
+                                    <li class="gallery-item-comments"><b-icon icon="eye" font-scale="0.8"></b-icon> {{
+                                        pickedArticle.hit }}</li>
                                 </ul>
                             </div>
-                            <span v-if="pickedArticle.userId == userId"
-                            style="padding-top: 10px;
-                                text-align: right;
-                                display: inline-block;
-                                width: 100%;
-                                text-decoration: none;">
-                                <router-link class="link modal_Atag_style" :to="{ name: 'userboardmodify',query: { 
-                                    article: pickedArticle,
-                                    imgs: pickedArticlesImg,
-                                    totalFiles: pickedArticlesImg.length
-                                    }}">
+                            <span v-if="pickedArticle.userId == userId" style="padding-top: 10px;
+                                    text-align: right;
+                                    display: inline-block;
+                                    width: 100%;
+                                    text-decoration: none;">
+                                <router-link class="link modal_Atag_style" :to="{
+                                    name: 'userboardmodify', query: {
+                                        article: pickedArticle,
+                                        imgs: pickedArticlesImg,
+                                        totalFiles: pickedArticlesImg.length
+                                    }
+                                }">
                                     <span>수정하기</span>
                                 </router-link>
                                 <span class="modal_Atag_style"> | </span>
-                                <a href="" class="modal_Atag_style"><span>삭제하기</span></a>
+                                <a href="" class="modal_Atag_style"
+                                    @click="deleteArticle(pickedArticle.articleNo)"><span>삭제하기</span></a>
                             </span>
                         </div>
                         <div>
-                            
+
                         </div>
                     </div>
                 </b-modal>
@@ -251,10 +255,10 @@ export default ({
                 });
         },
         mvModal(pickedArticle) {
-             //모달로 데이터 넘겨주기.
+            //모달로 데이터 넘겨주기.
             this.pickedArticle = pickedArticle;
             this.pickedArticlesImg = [];
-            for (var i = 0; i < this.imgs.length; i++){
+            for (var i = 0; i < this.imgs.length; i++) {
                 if (this.imgs[i].articleNo == this.pickedArticle.articleNo) {
                     this.pickedArticlesImg.push(this.imgs[i].imgBlob);
                 }
@@ -272,18 +276,31 @@ export default ({
                     this.articles = response.data;
                 });
         },
+
         onSlideStart() {
-        this.sliding = true
-            },
-            onSlideEnd() {
-                this.sliding = false
-            }
+            this.sliding = true
+        },
+
+        onSlideEnd() {
+            this.sliding = false
+        },
+        //게시글 삭제
+        deleteArticle(articleNo) {
+            this.deleteImages(articleNo);
+
+            http.delete(`/userboard/delete/${articleNo}`);
+        },
+
+        // 이미지 삭제
+        async deleteImages(articleNo) {
+            await http.delete(`/userboard/deleteImg/${articleNo}`);
+        },
     },
     created() {
         this.search();
         this.getImgs();
     },
-    
+
 })
 
 </script>
@@ -669,50 +686,57 @@ Remove or comment-out the code block below to see how the browser will fall-back
     height: auto !important;
     max-height: 100% !important;
 }
+
 /* 모달창 */
 @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
 
-.modal{
+.modal {
     font-family: 'Jua', sans-serif;
 }
-.modal_carousel{
+
+.modal_carousel {
     display: inline-block;
     width: 48%;
     margin-left: 2%;
 }
+
 /* 모달창 글정보 */
-.articleInfo{
+.articleInfo {
     display: inline-block;
     width: 48%;
     margin-right: 2%;
     font-family: 'Jua', sans-serif;
 }
-.articleContent{
+
+.articleContent {
     padding: 4%;
     top: 3%;
     position: absolute;
     width: 48%;
 }
-.modal-item{
+
+.modal-item {
     width: 100%;
     height: 100%;
     text-align: right;
     border-bottom: 1px solid #dee2e6;
 }
+
 .modal-item li {
     display: inline-block;
     font-size: 1.2rem;
     font-weight: 600;
 }
-.contentIn{
+
+.contentIn {
     padding: 5%;
     width: 100%;
     height: fit-content;
     min-height: 200px;
 }
-.modal_Atag_style{
+
+.modal_Atag_style {
     text-decoration: none;
     color: #a7a9ac !important;
     font-size: small;
-}
-</style>
+}</style>

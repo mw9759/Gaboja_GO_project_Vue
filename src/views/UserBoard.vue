@@ -2,7 +2,7 @@
     <div>
     <div class='top_'>
       <h3 class='subject'>
-        커뮤니티 
+        COMMUNITY 
       </h3>
     </div>
     <router-view @search="search" :searchParam="searchParam" ></router-view>

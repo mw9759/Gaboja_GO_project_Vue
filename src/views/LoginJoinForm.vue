@@ -233,7 +233,7 @@
                   <option value="none">=선택=</option>
                   <option value="samsung.com">삼성</option>
                   <option value="naver.com">네이버</option>
-                  <option value="google.com">구글</option>
+                  <option value="gmail.com">구글</option>
                   <option value="user-input">직접입력</option>
                 </select>
               </div>

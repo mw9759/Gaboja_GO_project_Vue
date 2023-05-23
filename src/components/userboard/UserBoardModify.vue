@@ -48,7 +48,7 @@
 
                     <div class="submit">
                         <div class="submit">
-                            <input type="button" value="작성완료" id="button-blue" @click="write" />
+                            <input type="button" value="수정완료" id="button-blue" @click="modify" />
                         </div>
                     </div>
                 </form>
@@ -104,22 +104,30 @@ export default {
         };
     },
     methods: {
-        write() {
-            console.log(this.files);
-            console.log(this.blobfilse);
-            console.log(this.totalFiles);
+        modify() {
             let imgok = this.totalFiles > 0 ? 'Y' : 'N';
             http
-                .post("/userboard/write", {
+                .put("/userboard/modify", {
+                    articleNo: this.articleNo,
                     subject: this.subject,
                     content: this.content,
                     userId: this.userId,
                     imgsIsExist: imgok,
                 })
                 .then(() => {
-                    this.uploadImages();
+                    this.deleteImages();
+                    if (!this.uploadedimgs) {
+                        this.uploadImages();
+                    }
                     this.$emit("search", this.searchParam_list);
                 });
+        },
+
+        // 이미지 삭제
+        async deleteImages() {
+            if (!this.uploadedimgs) {
+                await http.delete(`/userboard/deleteImg/${this.articleNo}`);
+            }
         },
 
         async uploadImages() {

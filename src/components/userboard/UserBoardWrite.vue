@@ -89,9 +89,6 @@ export default {
     },
     methods: {
         write() {
-            console.log(this.files);
-            console.log(this.blobfilse);
-            console.log(this.totalFiles);
             let imgok = this.totalFiles > 0 ? 'Y' : 'N';
             http
                 .post("/userboard/write", {

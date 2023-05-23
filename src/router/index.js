@@ -37,6 +37,21 @@ const routes = [
     component: () => import(/* webpackChunkName: "login_join" */ "@/views/LoginJoinForm.vue"),
   },
   {
+    path: "/mypage",
+    name: "mypage",
+    component: () => import(/* webpackChunkName: "my_page" */ "@/views/Mypage.vue"),
+    redirect: "/userBoard/list",
+    children: [
+      {
+        path: "myProfile",
+        name: "myProfile",
+        beforeEnter: onlyAuthUser,
+        component: () =>
+          import(/* webpackChunkName: "my_page" */ "@/components/mypage/myProfile"),
+      },
+    ]
+  },
+  {
     path: "/tripsearch",
     name: "tripsearch",
     beforeEnter: onlyAuthUser,
