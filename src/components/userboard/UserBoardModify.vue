@@ -82,10 +82,13 @@ export default {
 
         this.uploadedimgs = this.$route.query.imgs;
         this.totalFiles = this.$route.query.totalFiles;
+
+        this.page = this.$route.query.page;
     },
 
     data() {
         return {
+            page: null,
             subject: null,
             content: null,
             articleNo: null,
@@ -116,10 +119,17 @@ export default {
                 })
                 .then(() => {
                     this.deleteImages();
-                    if (!this.uploadedimgs) {
+                    if (this.uploadedimgs == null) {
                         this.uploadImages();
                     }
-                    this.$emit("search", this.searchParam_list);
+                    else {
+                        if (this.page == "myPage") {
+                            this.$router.push({ name: 'Profile' });
+                        }
+                        else {
+                            this.$router.push({ name: "userboardlist" });
+                        }
+                    }
                 });
         },
 
@@ -132,16 +142,16 @@ export default {
 
         async uploadImages() {
             var imgs = this.blobfilse;
-            await http.post('/userboard/upload', {
+            await http.post(`/userboard/updateImg`, {
                 imgBlobs: imgs,
+                articleNo: [this.articleNo]
             });
-            this.$router.push({ name: "userboardlist" });
-
-               // .then(response => {
-               // })
-               // .catch(error => {
-               //     console.error('Error uploading images:', error);
-                //});
+            if (this.page == "myPage") {
+                this.$router.push({ name: 'Profile' });
+            }
+            else {
+                this.$router.push({ name: "userboardlist" });
+            }
         },
         
         fileToBlob() {
