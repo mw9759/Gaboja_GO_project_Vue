@@ -97,10 +97,12 @@
                 </div>
             </div>
             <div>
-                <b-modal id="modal-center" centered hide-header hide-footer v-if="pickedArticle" size="xl">
-                    <div>
-                        <b-icon icon="person-fill" font-scale="1.5"></b-icon>
-                        <h4 style="display: inline-block; font-family: 'Jua', sans-serif;">{{ pickedArticle.userId }}</h4>
+                <b-modal id="modal-center" centered hide-header hide-footer scrollable  v-if="pickedArticle" size="xl">
+                    <div style="margin-bottom: 10px;">
+                        <b-avatar size="40">
+                            <img :src="userInfo.profileImg" alt="Profile" />
+                        </b-avatar>
+                        <h4 style="display: inline-block; vertical-align: middle; margin-left: 10px;">{{ pickedArticle.userId }}</h4>
                     </div>
 
                     <!-- 만약 사진을 올린경우-->
@@ -165,6 +167,57 @@
                         </div>
                         <div>
 
+                        </div>
+                    </div>
+                    <div class="comments">
+                        <h2 class="comments_title">댓글 <span style="font-size:medium;vertical-align: middle;">800</span></h2>
+                        <div style="border-bottom: 1px solid #a7a9ac; padding-bottom: 0.5rem;">
+                            <b-avatar size="50">
+                                <img :src="userInfo.profileImg" alt="Profile" />
+                            </b-avatar>
+                            <input type="text" class="comments_input" placeholder="댓글 추가....">
+                            <b-button size="sm" class="mb-2" style="margin-left: 5px;
+                                                                    padding: 2%;
+                                                                    width: 10%;
+                                                                    margin-top: 4px;
+                                                                    background-color: #ADBBD5;
+                                                                    border: none;
+                                                                    border-radius: 20px;">
+                                <b-icon icon="arrow-return-left" aria-hidden="true"></b-icon> 
+                            </b-button>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <b-avatar size="50">
+                                <img :src="userInfo.profileImg" alt="Profile" />
+                            </b-avatar>
+                            <span style="vertical-align: middle;margin-left: 8px;">
+                                <span>#남이 작성한 글</span> 
+                                <b-icon icon="dot" aria-hidden="true"></b-icon>#시간
+                            </span>
+                            <div class="commentIn">ㅈ나 재밌어보이네요</div>
+                            <div class="comment-item">
+                                <ul>
+                                    <li class="gallery-item-likes c-li"><b-icon icon="heart" font-scale="0.8"></b-icon> 89</li>
+                                    <li class="gallery-item-likes c-li"><b-icon icon="chat" font-scale="0.8"></b-icon> 5</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1rem;">
+                            <b-avatar size="50">
+                                <img :src="userInfo.profileImg" alt="Profile" />
+                            </b-avatar>
+                            <span style="vertical-align: middle;margin-left: 8px;">
+                                <span style="color: #19C653;">#내가작성한 글<b-icon icon="emoji-smile" aria-hidden="true"></b-icon></span> 
+                                <b-icon icon="dot" aria-hidden="true"></b-icon>#시간
+                            </span>
+                            <div class="commentIn">ㅈ나고마워요</div>
+                            <div class="comment-item">
+                                <ul>
+                                    <li class="gallery-item-likes c-li"><b-icon icon="heart" font-scale="0.8"></b-icon> 89</li>
+                                    <li class="gallery-item-likes c-li"><b-icon icon="chat" font-scale="0.8"></b-icon> 5</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </b-modal>
@@ -739,4 +792,44 @@ Remove or comment-out the code block below to see how the browser will fall-back
     text-decoration: none;
     color: #a7a9ac !important;
     font-size: small;
-}</style>
+}
+
+/** 댓글 창 */
+.comments{
+    width: 84%;
+    font-family: 'Jua', sans-serif;
+    margin-left: 7%;
+    margin-top: 3%;
+    border-top: 1px solid #a7a9ac;
+}
+.comments_title{
+    width: 100%;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #a7a9ac;
+    padding: 20px;
+}
+.comments_input{
+    margin-left: 15px;
+    border: none;
+    background-color: #F4F6FB;
+    width: 75%;
+    padding: 2%;
+    border-radius: 10px;
+}
+.comment-item {
+    width: 100%;
+    height: 100%;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+.commentIn {
+    padding: 5%;
+    width: 100%;
+    height: fit-content;
+    min-height: 100px;
+}
+.c-li{
+    display: inline-block;
+    font-size: 1.2rem;
+}
+</style>

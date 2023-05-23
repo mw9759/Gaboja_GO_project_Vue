@@ -26,7 +26,6 @@
 
                             <p>
                                 <label for="upload_imgs" class="file_label">
-                                    <i class="fa fa-upload" aria-hidden="true"></i>
                                     사진 선택
                                 </label>
                                 <input class="show-for-sr" type="file" style="display: none;" id="upload_imgs"

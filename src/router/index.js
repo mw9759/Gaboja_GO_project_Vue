@@ -44,7 +44,7 @@ const routes = [
     children: [
       {
         path: "myProfile",
-        name: "myProfile",
+        name: "Profile",
         beforeEnter: onlyAuthUser,
         component: () =>
           import(/* webpackChunkName: "my_page" */ "@/components/mypage/myProfile"),

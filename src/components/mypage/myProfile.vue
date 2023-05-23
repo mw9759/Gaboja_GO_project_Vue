@@ -1,23 +1,27 @@
 <template>
-    <div>
+    <b-container>
         <header>
-
-            <div class="container">
-
+            <div>
                 <div class="profile">
-
                     <div class="profile-image">
-
-                        <img src="https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg"
+                        <label for="upload_imgs">
+                            <img class="progileImg" v-if="blobfile" :src="blobfile"
+                                alt="">
+                            <img class="progileImg" v-else src="https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg"
                             alt="">
-
+                        </label>
+                            <input class="show-for-sr" type="file" style="display: none;" id="upload_imgs"
+                            name="upload_imgs[]" multiple v-on:change="previewImgs" />
                     </div>
 
                     <div class="profile-user-settings">
 
                         <h1 class="profile-user-name">{{ userInfos.userId }}</h1>
 
-                        <button class="btn profile-edit-btn">수정하기</button>
+                        <b-dropdown id="dropdown-1" text="SETTINGS" class="m-md-2">
+                            <b-dropdown-item>정보수정</b-dropdown-item>
+                            <b-dropdown-item @click="checkDelete">떠나기</b-dropdown-item>
+                        </b-dropdown>
 
                         <button class="btn profile-settings-btn" aria-label="profile settings"><i class="fas fa-cog"
                                 aria-hidden="true"></i></button>
@@ -27,17 +31,18 @@
                     <div class="profile-stats">
 
                         <ul>
-                            <li><span class="profile-stat-count">164</span> posts</li>
-                            <li><span class="profile-stat-count">188</span> followers</li>
-                            <li><span class="profile-stat-count">206</span> following</li>
+                            <li><span class="profile-stat-count">{{ articles.length }}</span> posts</li>
+                            <li><span class="profile-stat-count">0</span> followers</li>
+                            <li><span class="profile-stat-count">0</span> following</li>
                         </ul>
 
                     </div>
 
                     <div class="profile-bio">
 
-                        <p><span class="profile-real-name">{{ userInfos.userName }}</span> 여행 가보자고Go 📷✈️🏕️</p>
+                        <p><span class="profile-real-name">{{ userInfos.userName }}</span> {{userInfos.slogun}}</p>
                         <p><span class="profile-real-name">Email : </span> {{ userInfos.emailId }}@{{ userInfos.emailDomain }}</p>
+                        <p style="font-size: 10px; color: #333;">@since {{userInfos.joinDate}}</p>
                     </div>
 
                 </div>
@@ -48,279 +53,159 @@
 
         </header>
 
-        <main>
-
-            <div class="container">
-
-                <div class="gallery">
-
-                    <div class="gallery-item" tabindex="0">
-
-                        <img src="https://images.unsplash.com/photo-1511765224389-37f0e77cf0eb?w=500&h=500&fit=crop"
-                            class="gallery-image" alt="">
-
-                        <div class="gallery-item-info">
-
-                            <ul>
-                                <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i
-                                        class="fas fa-heart" aria-hidden="true"></i> 56</li>
-                                <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
-                                        class="fas fa-comment" aria-hidden="true"></i> 2</li>
-                            </ul>
-
-                        </div>
-
+        <div class="gallery">
+            <div v-for="article in articles" :key="article.articleNo">
+                <div class="gallery-item" tabindex="0">
+                    <div v-if="article.imgsIsExist == 'Y'">
+                        <!-- <div v-for="(img, index) in imgs" :key="index">
+                            <img v-if="article.articleNo == img.articleNo" :key="img.articleNo" :src="img.imgBlob"
+                                class="gallery-image" alt="">
+                        </div> -->
+                        <b-carousel id="cars" v-model="article.imgSlideNum" controls indicators background="#ababab"
+                            img-width="1024" img-height="480" style="text-shadow: 1px 1px 2px #333;"
+                            @sliding-start="onSlideStart" @sliding-end="onSlideEnd">
+                            <!-- Text slides with image -->
+                            <div v-for="(img, index) in imgs" :key="index" class="gallery-item">
+                                <b-carousel-slide v-if="article.articleNo == img.articleNo" :key="img.articleNo"
+                                    v-b-modal.modal-center>
+                                    <!-- :img-src="img.imgBlob"
+                                    > -->
+                                    <template #img>
+                                        <img :src="img.imgBlob" alt="Image" class="image-container">
+                                    </template>
+                                    <div class="left-text" @click="mvModal(article)">
+                                        <h3>{{ article.subject }}</h3>
+                                        <div>
+                                            <span style="margin-right: 15px; display: inline-block;">#{{ article.userId
+                                            }}</span>
+                                            <span style="margin-left: 15px;">{{ article.registerTime }}</span>
+                                        </div>
+                                    </div>
+                                </b-carousel-slide>
+                            </div>
+                        </b-carousel>
+                    </div>
+                    <div v-else>
+                        <b-carousel id="cars" v-model="slide" controls indicators background="#ababab" img-width="99%"
+                            img-height="480" style="text-shadow: 1px 1px 2px #333;max-height: 480px;"
+                            @sliding-start="onSlideStart" @sliding-end="onSlideEnd">
+                            <!-- Text slides with image -->
+                            <div class="gallery-item">
+                                <b-carousel-slide v-b-modal.modal-center>
+                                    <!-- :img-src="img.imgBlob"
+                                    > -->
+                                    <template #img>
+                                        <img src="https://images.unsplash.com/photo-1497445462247-4330a224fdb1?w=500&h=500&fit=crop"
+                                            alt="Image" class="image-container">
+                                    </template>
+                                    <div class="left-text" @click="mvModal(article)">
+                                        <h3>{{ article.subject }}</h3>
+                                        <div>
+                                            <span style="margin-right: 15px; display: inline-block;">#{{ article.userId
+                                            }}</span>
+                                            <span style="margin-left: 15px;">{{ article.registerTime }}</span>
+                                        </div>
+                                    </div>
+                                </b-carousel-slide>
+                            </div>
+                        </b-carousel>
                     </div>
 
-                    <div class="gallery-item" tabindex="0">
+                    <div class="gallery-item-info">
 
-                        <img src="https://images.unsplash.com/photo-1497445462247-4330a224fdb1?w=500&h=500&fit=crop"
-                            class="gallery-image" alt="">
-
-                        <div class="gallery-item-info">
-
-                            <ul>
-                                <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i
-                                        class="fas fa-heart" aria-hidden="true"></i> 89</li>
-                                <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
-                                        class="fas fa-comment" aria-hidden="true"></i> 5</li>
-                            </ul>
-
-                        </div>
+                        <ul>
+                            <li class="gallery-item-likes"><b-icon icon="heart" font-scale="0.8"></b-icon> 89</li>
+                            <li class="gallery-item-likes"><b-icon icon="chat" font-scale="0.8"></b-icon> 5</li>
+                            <li class="gallery-item-comments"><b-icon icon="eye" font-scale="0.8"></b-icon> {{ article.hit
+                            }}</li>
+                        </ul>
 
                     </div>
-
-                    <div class="gallery-item" tabindex="0">
-
-                        <img src="https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=500&h=500&fit=crop"
-                            class="gallery-image" alt="">
-
-                        <div class="gallery-item-type">
-
-                            <span class="visually-hidden">Gallery</span><i class="fas fa-clone" aria-hidden="true"></i>
-
-                        </div>
-
-                        <div class="gallery-item-info">
-
-                            <ul>
-                                <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i
-                                        class="fas fa-heart" aria-hidden="true"></i> 42</li>
-                                <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
-                                        class="fas fa-comment" aria-hidden="true"></i> 1</li>
-                            </ul>
-
-                        </div>
-
-                    </div>
-
-                    <div class="gallery-item" tabindex="0">
-
-                        <img src="https://images.unsplash.com/photo-1502630859934-b3b41d18206c?w=500&h=500&fit=crop"
-                            class="gallery-image" alt="">
-
-                        <div class="gallery-item-type">
-
-                            <span class="visually-hidden">Video</span><i class="fas fa-video" aria-hidden="true"></i>
-
-                        </div>
-
-                        <div class="gallery-item-info">
-
-                            <ul>
-                                <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i
-                                        class="fas fa-heart" aria-hidden="true"></i> 38</li>
-                                <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
-                                        class="fas fa-comment" aria-hidden="true"></i> 0</li>
-                            </ul>
-
-                        </div>
-
-                    </div>
-
-                    <div class="gallery-item" tabindex="0">
-
-                        <img src="https://images.unsplash.com/photo-1498471731312-b6d2b8280c61?w=500&h=500&fit=crop"
-                            class="gallery-image" alt="">
-
-                        <div class="gallery-item-type">
-
-                            <span class="visually-hidden">Gallery</span><i class="fas fa-clone" aria-hidden="true"></i>
-
-                        </div>
-
-                        <div class="gallery-item-info">
-
-                            <ul>
-                                <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i
-                                        class="fas fa-heart" aria-hidden="true"></i> 47</li>
-                                <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
-                                        class="fas fa-comment" aria-hidden="true"></i> 1</li>
-                            </ul>
-
-                        </div>
-
-                    </div>
-
-                    <div class="gallery-item" tabindex="0">
-
-                        <img src="https://images.unsplash.com/photo-1515023115689-589c33041d3c?w=500&h=500&fit=crop"
-                            class="gallery-image" alt="">
-
-                        <div class="gallery-item-info">
-
-                            <ul>
-                                <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i
-                                        class="fas fa-heart" aria-hidden="true"></i> 94</li>
-                                <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
-                                        class="fas fa-comment" aria-hidden="true"></i> 3</li>
-                            </ul>
-
-                        </div>
-
-                    </div>
-
-                    <div class="gallery-item" tabindex="0">
-
-                        <img src="https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=500&h=500&fit=crop"
-                            class="gallery-image" alt="">
-
-                        <div class="gallery-item-type">
-
-                            <span class="visually-hidden">Gallery</span><i class="fas fa-clone" aria-hidden="true"></i>
-
-                        </div>
-
-                        <div class="gallery-item-info">
-
-                            <ul>
-                                <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i
-                                        class="fas fa-heart" aria-hidden="true"></i> 52</li>
-                                <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
-                                        class="fas fa-comment" aria-hidden="true"></i> 4</li>
-                            </ul>
-
-                        </div>
-
-                    </div>
-
-                    <div class="gallery-item" tabindex="0">
-
-                        <img src="https://images.unsplash.com/photo-1515814472071-4d632dbc5d4a?w=500&h=500&fit=crop"
-                            class="gallery-image" alt="">
-
-                        <div class="gallery-item-info">
-
-                            <ul>
-                                <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i
-                                        class="fas fa-heart" aria-hidden="true"></i> 66</li>
-                                <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
-                                        class="fas fa-comment" aria-hidden="true"></i> 2</li>
-                            </ul>
-
-                        </div>
-
-                    </div>
-
-                    <div class="gallery-item" tabindex="0">
-
-                        <img src="https://images.unsplash.com/photo-1511407397940-d57f68e81203?w=500&h=500&fit=crop"
-                            class="gallery-image" alt="">
-
-                        <div class="gallery-item-type">
-
-                            <span class="visually-hidden">Gallery</span><i class="fas fa-clone" aria-hidden="true"></i>
-
-                        </div>
-
-                        <div class="gallery-item-info">
-
-                            <ul>
-                                <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i
-                                        class="fas fa-heart" aria-hidden="true"></i> 45</li>
-                                <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
-                                        class="fas fa-comment" aria-hidden="true"></i> 0</li>
-                            </ul>
-
-                        </div>
-
-                    </div>
-
-                    <div class="gallery-item" tabindex="0">
-
-                        <img src="https://images.unsplash.com/photo-1518481612222-68bbe828ecd1?w=500&h=500&fit=crop"
-                            class="gallery-image" alt="">
-
-                        <div class="gallery-item-info">
-
-                            <ul>
-                                <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i
-                                        class="fas fa-heart" aria-hidden="true"></i> 34</li>
-                                <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
-                                        class="fas fa-comment" aria-hidden="true"></i> 1</li>
-                            </ul>
-
-                        </div>
-
-                    </div>
-
-                    <div class="gallery-item" tabindex="0">
-
-                        <img src="https://images.unsplash.com/photo-1505058707965-09a4469a87e4?w=500&h=500&fit=crop"
-                            class="gallery-image" alt="">
-
-                        <div class="gallery-item-info">
-
-                            <ul>
-                                <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i
-                                        class="fas fa-heart" aria-hidden="true"></i> 41</li>
-                                <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
-                                        class="fas fa-comment" aria-hidden="true"></i> 0</li>
-                            </ul>
-
-                        </div>
-
-                    </div>
-
-                    <div class="gallery-item" tabindex="0">
-
-                        <img src="https://images.unsplash.com/photo-1423012373122-fff0a5d28cc9?w=500&h=500&fit=crop"
-                            class="gallery-image" alt="">
-
-                        <div class="gallery-item-type">
-
-                            <span class="visually-hidden">Video</span><i class="fas fa-video" aria-hidden="true"></i>
-
-                        </div>
-
-                        <div class="gallery-item-info">
-
-                            <ul>
-                                <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i
-                                        class="fas fa-heart" aria-hidden="true"></i> 30</li>
-                                <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
-                                        class="fas fa-comment" aria-hidden="true"></i> 2</li>
-                            </ul>
-
-                        </div>
-
-                    </div>
-
                 </div>
-                <!-- End of gallery -->
-
-                <div class="loader"></div>
-
             </div>
-            <!-- End of container -->
+            <div>
+                <b-modal id="modal-center" centered hide-header hide-footer v-if="pickedArticle" size="xl">
+                    <div>
+                        <b-icon icon="person-fill" font-scale="1.5"></b-icon>
+                        <h4 style="display: inline-block; font-family: 'Jua', sans-serif;">{{ pickedArticle.userId }}</h4>
+                    </div>
 
-        </main>
-    </div>
+                    <!-- 만약 사진을 올린경우-->
+                    <b-carousel v-if="pickedArticle.imgsIsExist == 'Y'" id="cars" v-model="pickedArticle.imgSlideNum"
+                        controls indicators background="#ababab" img-width="1024" img-height="480"
+                        style="text-shadow: 1px 1px 2px #333;" class="modal_carousel" @sliding-start="onSlideStart"
+                        @sliding-end="onSlideEnd">
+                        <div v-for="(img, index) in pickedArticlesImg" :key="index" class="gallery-item">
+                            <b-carousel-slide>
+                                <template #img>
+                                    <img :src="img" alt="Image" class="image-container">
+                                </template>
+                            </b-carousel-slide>
+                        </div>
+                    </b-carousel>
+
+                    <!-- 만약 사진을 올리지 않은 경우-->
+                    <b-carousel id="cars" v-model="pickedArticle.imgSlideNum" controls indicators background="#ababab"
+                        img-width="1024" img-height="480" style="text-shadow: 1px 1px 2px #333;" class="modal_carousel"
+                        @sliding-start="onSlideStart" @sliding-end="onSlideEnd" v-else>
+                        <div class="gallery-item">
+                            <b-carousel-slide>
+                                <template #img>
+                                    <img src="https://images.unsplash.com/photo-1497445462247-4330a224fdb1?w=500&h=500&fit=crop"
+                                        alt="Image" class="image-container">
+                                </template>
+                            </b-carousel-slide>
+                        </div>
+                    </b-carousel>
+
+                    <div class="articleInfo">
+                        <div class="articleContent">
+                            <span>{{ pickedArticle.registerTime }}</span>
+                            <h2 style="border-bottom: 1px solid #dee2e6;">#{{ pickedArticle.subject }}</h2>
+                            <div class="contentIn">{{ pickedArticle.content }}</div>
+                            <div class="modal-item">
+                                <ul>
+                                    <li class="gallery-item-likes"><b-icon icon="heart" font-scale="0.8"></b-icon> 89</li>
+                                    <li class="gallery-item-likes"><b-icon icon="chat" font-scale="0.8"></b-icon> 5</li>
+                                    <li class="gallery-item-comments"><b-icon icon="eye" font-scale="0.8"></b-icon> {{
+                                        pickedArticle.hit }}</li>
+                                </ul>
+                            </div>
+                            <span v-if="pickedArticle.userId == userInfos.userId" style="padding-top: 10px;
+                                    text-align: right;
+                                    display: inline-block;
+                                    width: 100%;
+                                    text-decoration: none;">
+                                <router-link class="link modal_Atag_style" :to="{
+                                    name: 'userboardmodify', query: {
+                                        article: pickedArticle,
+                                        imgs: pickedArticlesImg,
+                                        totalFiles: pickedArticlesImg.length,
+                                        page: page,
+                                    }
+                                }">
+                                    <span>수정하기</span>
+                                </router-link>
+                                <span class="modal_Atag_style"> | </span>
+                                <a href="" class="modal_Atag_style"
+                                    @click="deleteArticle(pickedArticle.articleNo)"><span>삭제하기</span></a>
+                            </span>
+                        </div>
+                        <div>
+
+                        </div>
+                    </div>
+                </b-modal>
+            </div>
+        </div>
+    </b-container>
 </template>
 
 <script>
-//import http from "@/api/http";
-import { mapState } from "vuex";
+import http from "@/api/http";
+import { mapState, mapActions } from "vuex";
+const memberStore = "memberStore";
+import swal from "sweetalert";
 
 export default {
     name: "myProfile",
@@ -332,22 +217,166 @@ export default {
     },
 
     created() {
-
+        this.userInfos = this.$store.state.memberStore.userInfo;
+        http
+            .get(`/user/mywrites/${this.userInfos.userId}`)
+            .then((response) => {
+                this.articles = response.data;
+                this.posts = this.articles.length;
+                this.myimgs();
+            });
+        this.blobfile = this.userInfos.profileImg;
     },
 
     data() {
         return {
-            userInfos: this.$store.state.memberStore.userInfo,
-
+            page: "myPage",
+            userInfos: null,
+            articles: [],
+            imgs: [],
+            posts: 0,
+            slide: 0,
+            sliding: null,
+            pickedArticle: null, // 리스트에서 클릭한 article
+            pickedArticlesImg: [], // 해당 리스트에 업로드된 이미지들
+            files: [],
+            blobfile: null,
         };
     },
     methods: {
+        ...mapActions(memberStore, ["userLogout", "getUserInfo"]),
+        //회원 프사
+        previewImgs(event) {
+            this.files = Array.from(event.target.files);
+            this.fileToBlob();
+        },
+        //프사 blob으로 바꾸기
+        fileToBlob() {
+            if (this.files) {
+                var reader = new FileReader();
+                reader.onload = (e) => {
+                    this.blobfile = e.target.result;
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+            swal({
+                title: "프사를 바꾸시겠습니까??",
+                icon: "info",
+                buttons: true,
+                dangerMode: true,
+                })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        this.updateProfile();
+                        swal("변경완료!", {
+                        icon: "success",
+                        });
+                        let token = sessionStorage.getItem("access-token");
+                        this.getUserInfo(token);
+                        window.location.reload();
+                    } else {
+                        swal("변경이 취소되었습니다.");
+                        if (this.userInfos.profileImg) {
+                            this.blobfile = this.userInfos.profileImg;
+                        }
+                        else {
+                            this.blobfile = null;
+                        }
+                    }
+                    });
 
+        },
+        async updateProfile() {
+            await http
+                .put(`/user/updateProfile`, {
+                    userId: this.userInfos.userId,
+                    profileImg: this.blobfile,
+                }).then((response) => {
+                    if (response.data == "success") {
+                        return true;
+                    }
+            })
+        },
+        async myimgs() {
+            await http
+            .get(`/user/myimgs/${this.userInfos.userId}`)
+            .then((response) => {
+                this.imgs = response.data;
+            });
+        },
+        mvModal(pickedArticle) {
+            //모달로 데이터 넘겨주기.
+            this.pickedArticle = pickedArticle;
+            this.pickedArticlesImg = [];
+            for (var i = 0; i < this.imgs.length; i++) {
+                if (this.imgs[i].articleNo == this.pickedArticle.articleNo) {
+                    this.pickedArticlesImg.push(this.imgs[i].imgBlob);
+                }
+            }
+            //모달로 이동한경우 조회수 증가시키기
+            
+        },
+
+        onSlideStart() {
+            this.sliding = true
+        },
+
+        onSlideEnd() {
+            this.sliding = false
+        },
+        //게시글 삭제
+        deleteArticle(articleNo) {
+            this.deleteImages(articleNo);
+
+            http.delete(`/userboard/delete/${articleNo}`);
+        },
+
+        // 이미지 삭제
+        async deleteImages(articleNo) {
+            await http.delete(`/userboard/deleteImg/${articleNo}`);
+        },
+
+        //탈퇴여부 재확인
+        checkDelete() {
+            swal({
+                title: "정말로 떠나시나요?ㅠㅠ",
+                text: "한번 떠나시면, 그동한 남기신 데이터는 삭제됩니다..",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+                })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        this.deleteUserIngo();
+                        swal("계정이 삭제되었습니다!", {
+                        icon: "success",
+                        });
+                    } else {
+                        swal("삭제가 취소되었습니다!");
+                    }
+                    });
+        },
+
+        //회원탈퇴
+        deleteUserIngo() {
+            http.delete(`/user/delete/${this.userInfos.userId}`)
+            .then((response) => {
+                if (response.data == "success") {
+                    console.log(this.userInfo.userId);
+                    this.userLogout(this.userInfo.userId); // 임포트한 로그아웃 매서드 호출. 인자값: 로그인한 유저의 아이디.
+                    sessionStorage.removeItem("access-token"); //저장된 토큰 없애기
+                    sessionStorage.removeItem("refresh-token"); //저장된 토큰 없애기
+                    if (this.$route.path != "/") this.$router.push({ name: "home" });
+                    return true;
+                }   
+            });
+        }
     },
 };
 </script>
 
-<style>
+<style scoped>
+/*인스타그램폼*/
 /*
 
 All grid code is placed in a 'supports' rule (feature query) at the bottom of the CSS (Line 310). 
@@ -360,6 +389,10 @@ Flexbox and floats are used as a fallback so that browsers which don't support g
 
 /* Base Styles */
 
+:root {
+    font-size: 10px;
+}
+
 *,
 *::before,
 *::after {
@@ -367,6 +400,7 @@ Flexbox and floats are used as a fallback so that browsers which don't support g
 }
 
 body {
+    min-height: 100vh;
     background-color: #fafafa;
     color: #262626;
     padding-bottom: 3rem;
@@ -380,20 +414,6 @@ img {
     max-width: 93.5rem;
     margin: 0 auto;
     padding: 0 2rem;
-}
-
-.btn {
-    display: inline-block;
-    font: inherit;
-    background: none;
-    border: none;
-    color: inherit;
-    padding: 0;
-    cursor: pointer;
-}
-
-.btn:focus {
-    outline: 0.5rem auto #4d90fe;
 }
 
 .visually-hidden {
@@ -418,7 +438,7 @@ img {
 
 .profile-image {
     float: left;
-    width: calc(33.333% - 1rem);
+    width: calc(30%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -529,7 +549,7 @@ img {
 }
 
 .gallery-item-likes {
-    margin-right: 2.2rem;
+    margin-right: 1.2rem;
 }
 
 .gallery-item-type {
@@ -720,4 +740,81 @@ Remove or comment-out the code block below to see how the browser will fall-back
             margin: 0;
         }
     }
-}</style>
+}
+
+/* 리스트 이미지 관련 css */
+.image-container {
+    max-height: 480px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 430px;
+}
+
+.image-container img {
+    width: auto !important;
+    height: auto !important;
+    max-height: 100% !important;
+}
+
+/* 모달창 */
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+.modal {
+    font-family: 'Jua', sans-serif;
+}
+
+.modal_carousel {
+    display: inline-block;
+    width: 48%;
+    margin-left: 2%;
+}
+
+/* 모달창 글정보 */
+.articleInfo {
+    display: inline-block;
+    width: 48%;
+    margin-right: 2%;
+    font-family: 'Jua', sans-serif;
+}
+
+.articleContent {
+    padding: 4%;
+    top: 3%;
+    position: absolute;
+    width: 48%;
+}
+
+.modal-item {
+    width: 100%;
+    height: 100%;
+    text-align: right;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-item li {
+    display: inline-block;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.contentIn {
+    padding: 5%;
+    width: 100%;
+    height: fit-content;
+    min-height: 200px;
+}
+
+.modal_Atag_style {
+    text-decoration: none;
+    color: #a7a9ac !important;
+    font-size: small;
+}
+
+/**프로필사진 */
+.progileImg{
+    width: 200px;
+    height: 200px;
+}
+</style>

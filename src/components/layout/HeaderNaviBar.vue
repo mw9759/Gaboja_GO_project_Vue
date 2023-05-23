@@ -44,11 +44,15 @@
         <!-- after login -->
         <b-navbar-nav class="ml-auto" v-if="userInfo">
           <b-nav-item class="align-self-center">
-            <b-avatar variant="primary" v-text="userInfo.userId.charAt(0).toUpperCase()"></b-avatar>
+            <!--<b-avatar variant="primary" v-text="userInfo.userId.charAt(0).toUpperCase()">
+            </b-avatar>-->
+            <b-avatar size="50">
+              <img :src="userInfo.profileImg" alt="Profile" />
+            </b-avatar>
             {{ userInfo.userName }}({{ userInfo.userId }})님 환영합니다.
           </b-nav-item>
           <b-nav-item class="align-self-center">
-            <router-link :to="{ name: 'myProfile' }" class="link align-self-center"
+            <router-link :to="{ name: 'Profile' }" class="link align-self-center"
               >내정보보기</router-link
             >
           </b-nav-item>
@@ -94,7 +98,9 @@ export default {
     ...mapState(memberStore, ["isLogin", "userInfo"]),
     ...mapGetters(["checkUserInfo"]),
   },
-
+  watch: {
+    
+  },
   methods: {
     ...mapActions(memberStore, ["userLogout"]),
 
