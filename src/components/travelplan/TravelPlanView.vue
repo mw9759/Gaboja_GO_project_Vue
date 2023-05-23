@@ -23,11 +23,7 @@
     <div class="wrap">
       <!-- 지도 -->
       <div class="map_controller">
-        <b-form
-          class="d-flex"
-          style="margin-bottom: 5px"
-          @submit.prevent="submitForm"
-        >
+        <b-form class="d-flex" style="margin-bottom: 5px" @submit.prevent="submitForm">
           <b-form-select
             v-model="formData.searchArea"
             :options="options_area"
@@ -43,37 +39,21 @@
             :options="options_content"
             class="mr-1"
           ></b-form-select>
-          <b-form-input
-            v-model="formData.searchKeyword"
-            class="mr-1"
-          ></b-form-input>
-          <b-button
-            type="submit"
-            variant="outline-secondary"
-            style="width: 200px"
-          >
-            검색
-          </b-button>
+          <b-form-input v-model="formData.searchKeyword" class="mr-1"></b-form-input>
+          <b-button type="submit" variant="outline-secondary" style="width: 200px"> 검색 </b-button>
         </b-form>
         <div id="map" style="width: 100%; height: 500px"></div>
       </div>
       <!-- 계획 -->
       <div v-bar class="plan">
         <div>
-          <div
-            class="d-flex justify-content-between"
-            style="margin-bottom: 5px"
-          >
+          <div class="d-flex justify-content-between" style="margin-bottom: 5px">
             <div style="line-height: 38px; text-align: center">
               {{ this.plans[currentTab].name }}
             </div>
             <div>
-              <b-button class="mr-2" variant="success" @click="savePlan"
-                >저장</b-button
-              >
-              <b-button class="mr-2" variant="primary" @click="modifyPlan"
-                >수정</b-button
-              >
+              <b-button class="mr-2" variant="success" @click="savePlan">저장</b-button>
+              <b-button class="mr-2" variant="primary" v-b-modal.modal-modify>수정</b-button>
               <b-button variant="danger" @click="deletePlan">삭제</b-button>
             </div>
           </div>
@@ -143,6 +123,33 @@
         </tbody>
       </table>
     </div>
+
+    <!-- modal -->
+    <b-modal
+      id="modal-modify"
+      ref="modal"
+      title="이름 변경"
+      @show="resetModal(true)"
+      @hidden="resetModal(false)"
+      @ok="handleOk"
+    >
+      <form ref="form" @submit.stop.prevent="handleSubmit">
+        <b-form-group
+          label="Name"
+          label-for="name-input"
+          invalid-feedback="Name is required"
+          :state="modalState"
+        >
+          <b-form-input
+            id="name-input"
+            v-model="modalName"
+            :state="modalState"
+            required
+          ></b-form-input>
+        </b-form-group>
+      </form>
+      <!-- v-model="this.plans[this.currentTab].name" -->
+    </b-modal>
   </div>
 </template>
 
@@ -183,7 +190,10 @@ export default {
       map: null,
       markers: [],
       polyline: null,
+      dots: [],
       linePath: [],
+      modalState: null,
+      modalName: "",
       options_area: [
         { value: "", text: "검색 할 지역 선택" },
         { value: "1", text: "서울" },
@@ -249,9 +259,13 @@ export default {
         .catch((error) => {
           console.error(error);
         });
+
+      this.map.setCenter(new kakao.maps.LatLng(33.450701, 126.570667));
     },
     loadPlan() {
-      console.log("loading..");
+      console.log("loading....");
+      console.log(this.userInfo.userId);
+      console.log(this.$route.query.name);
       http
         .get("/travelplan/load", {
           params: {
@@ -260,13 +274,12 @@ export default {
           },
         })
         .then((response) => {
-          if (response !== null && response !== "") {
+          if (response.data !== null && response.data !== "") {
             this.plans = response.data;
             this.$nextTick(() => {});
           }
         });
     },
-    modifyPlan() {},
     deletePlan() {
       if (this.plans.length > 1) {
         this.plans.splice(this.currentTab, 1);
@@ -326,9 +339,17 @@ export default {
       }
     },
     updatePlan(index) {
+      // 선 초기화
       if (this.polyline) {
         this.polyline.setMap(null);
       }
+      // 점 초기화
+      if (this.dots.length > 0) {
+        for (var dot in this.dots) {
+          dot.setMap(null);
+        }
+      }
+      this.dots = [];
       if (this.plans[this.currentTab].data.length > 0) {
         this.linePath = [];
         for (var i = 0; i < this.plans[this.currentTab].data.length; i++) {
@@ -339,14 +360,28 @@ export default {
             )
           );
         }
+        // 선 그리기
         this.polyline = new kakao.maps.Polyline({
           path: this.linePath,
           strokeWeight: 3,
-          strokeColor: "#FFAE00",
-          strokeOpacity: 0.7,
+          strokeColor: "#db4040",
+          strokeOpacity: 1,
           strokeStyle: "solid",
         });
         this.polyline.setMap(this.map);
+        // 점 그리기
+        for (var n = 0; n < this.linePath.length; n++) {
+          var circleOverlay = new kakao.maps.CustomOverlay({
+            content: '<span class="dot"></span>',
+            position: new kakao.maps.LatLng(33.450701, 126.570667),
+            zIndex: 1,
+          });
+
+          this.dots.push(circleOverlay);
+
+          circleOverlay.setMap(this.map);
+        }
+
         if (index) {
           this.map.setCenter(this.linePath[index]);
         } else {
@@ -372,10 +407,7 @@ export default {
     },
     // 관광지 리스트 출력
     submitForm() {
-      if (
-        this.formData.searchArea === "" ||
-        this.formData.searchArea === null
-      ) {
+      if (this.formData.searchArea === "" || this.formData.searchArea === null) {
         alert("검색할 지역을 선택해주세요");
       } else {
         http
@@ -427,6 +459,7 @@ export default {
           latlng: new window.kakao.maps.LatLng(item.latitude, item.longitude),
         });
       }
+
       for (var i = 0; i < positions.length; i++) {
         var marker = new window.kakao.maps.Marker({
           map: this.map,
@@ -452,11 +485,37 @@ export default {
     moveCenter(lat, lng) {
       this.map.setCenter(new window.kakao.maps.LatLng(lat, lng));
     },
+    checkFormValidity() {
+      const valid = this.$refs.form.checkValidity();
+      this.modalState = valid;
+      return valid;
+    },
+    resetModal(show) {
+      this.modalState = null;
+      if (show) {
+        this.modalName = this.plans[this.currentTab].name;
+      }
+    },
+    handleOk(bvModalEvent) {
+      bvModalEvent.preventDefault();
+      this.handleSubmit();
+    },
+    handleSubmit() {
+      if (!this.checkFormValidity()) {
+        return;
+      }
+
+      this.plans[this.currentTab].name = this.modalName;
+
+      this.$nextTick(() => {
+        this.$bvModal.hide("modal-modify");
+      });
+    },
   },
 };
 </script>
 
-<style scoped>
+<style>
 .wrap {
   display: flex;
   padding: 5px 20px 5px 20px;
@@ -526,5 +585,56 @@ b-card {
 img {
   height: auto;
   width: 100px;
+}
+/* Custom Overlay */
+.dot {
+  overflow: hidden;
+  float: left;
+  width: 12px;
+  height: 12px;
+  background: url("https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/mini_circle.png");
+}
+.dotOverlay {
+  position: relative;
+  bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  border-bottom: 2px solid #ddd;
+  float: left;
+  font-size: 12px;
+  padding: 5px;
+  background: #fff;
+}
+.dotOverlay:nth-of-type(n) {
+  border: 0;
+  box-shadow: 0px 1px 2px #888;
+}
+.number {
+  font-weight: bold;
+  color: #ee6152;
+}
+.dotOverlay:after {
+  content: "";
+  position: absolute;
+  margin-left: -6px;
+  left: 50%;
+  bottom: -8px;
+  width: 11px;
+  height: 8px;
+  background: url("https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white_small.png");
+}
+.distanceInfo {
+  position: relative;
+  top: 5px;
+  left: 5px;
+  list-style: none;
+  margin: 0;
+}
+.distanceInfo .label {
+  display: inline-block;
+  width: 50px;
+}
+.distanceInfo:after {
+  content: none;
 }
 </style>

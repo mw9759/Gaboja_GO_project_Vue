@@ -17,9 +17,7 @@
         </div>
       </div>
       <!-- 추가버튼 -->
-      <b-button variant="outline-success" class="mt-2" v-b-modal.modal-append
-        >추가</b-button
-      >
+      <b-button variant="outline-success" class="mt-2" v-b-modal.modal-append>추가</b-button>
     </div>
 
     <!-- modal -->
@@ -38,12 +36,7 @@
           invalid-feedback="Name is required"
           :state="nameState"
         >
-          <b-form-input
-            id="name-input"
-            v-model="name"
-            :state="nameState"
-            required
-          ></b-form-input>
+          <b-form-input id="name-input" v-model="name" :state="nameState" required></b-form-input>
         </b-form-group>
       </form>
     </b-modal>
