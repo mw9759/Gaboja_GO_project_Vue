@@ -60,7 +60,7 @@ export default {
                 .post("/qna/write", {
                     subject: this.subject,
                     content: this.content,
-                    userId: this.userId,
+                    userId: this.userId, 
                 })
                 .then(() => {
                     this.$emit("search", this.searchParam_list);

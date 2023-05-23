@@ -1,6 +1,7 @@
 <template>
     <div>
         <section class="section">
+            <h1 class="title">수정하기</h1>
             <router-link :to="{ name: 'userboardlist' }">
                 <a href="" class="subtitle">👉게시글 보기</a>
             </router-link>
@@ -38,6 +39,8 @@
                                 </p>
                                 <img v-for="(file, index) in files" :src="getFilePreviewURL(file)" class="img-preview-thumb"
                                     :key="index">
+                                <img v-for="(file, index) in uploadedimgs" :src="file" class="img-preview-thumb"
+                                    :key="index">
                             </div>
                         </div>
                     </div>
@@ -70,10 +73,22 @@ export default {
             };
         }
     },
+
+    created() {
+        let article = this.$route.query.article;
+        this.subject = article.subject;
+        this.content = article.content;
+        this.articleNo = article.articleNo;
+
+        this.uploadedimgs = this.$route.query.imgs;
+        this.totalFiles = this.$route.query.totalFiles;
+    },
+
     data() {
         return {
             subject: null,
             content: null,
+            articleNo: null,
             userId: this.$store.state.memberStore.userInfo.userId,
             searchParam_list: {
                 key: null,
@@ -83,7 +98,8 @@ export default {
                 num: null,
             },
             files: [],
-            blobfilse:[],
+            blobfilse: [],
+            uploadedimgs: [],
             totalFiles: 0
         };
     },
@@ -136,6 +152,7 @@ export default {
             this.files = Array.from(event.target.files);
             this.totalFiles = this.files.length;
             this.fileToBlob();
+            this.uploadedimgs = null;
         },
 
     },

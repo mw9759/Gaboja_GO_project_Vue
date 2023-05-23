@@ -28,32 +28,143 @@
 
         <div class="gallery">
             <div v-for="article in articles" :key="article.articleNo">
-                <div class="gallery-item" tabindex="0" >
-
-                    <img src="https://images.unsplash.com/photo-1497445462247-4330a224fdb1?w=500&h=500&fit=crop"
-                        class="gallery-image" alt="">
+                <div class="gallery-item" tabindex="0">
+                    <div v-if="article.imgsIsExist == 'Y'">
+                        <!-- <div v-for="(img, index) in imgs" :key="index">
+                            <img v-if="article.articleNo == img.articleNo" :key="img.articleNo" :src="img.imgBlob"
+                                class="gallery-image" alt="">
+                        </div> -->
+                        <b-carousel id="cars" v-model="article.imgSlideNum" controls indicators background="#ababab"
+                            img-width="1024" img-height="480" style="text-shadow: 1px 1px 2px #333;"
+                            @sliding-start="onSlideStart" @sliding-end="onSlideEnd">
+                            <!-- Text slides with image -->
+                            <div v-for="(img, index) in imgs" :key="index" class="gallery-item">
+                                <b-carousel-slide v-if="article.articleNo == img.articleNo" :key="img.articleNo"
+                                    v-b-modal.modal-center>
+                                    <!-- :img-src="img.imgBlob"
+                                    > -->
+                                    <template #img>
+                                        <img :src="img.imgBlob" alt="Image" class="image-container">
+                                    </template>
+                                    <div class="left-text" @click="mvModal(article)">
+                                        <h3>{{ article.subject }}</h3>
+                                        <div>
+                                            <span style="margin-right: 15px; display: inline-block;">#{{ article.userId
+                                            }}</span>
+                                            <span style="margin-left: 15px;">{{ article.registerTime }}</span>
+                                        </div>
+                                    </div>
+                                </b-carousel-slide>
+                            </div>
+                        </b-carousel>
+                    </div>
+                    <div v-else>
+                        <b-carousel id="cars" v-model="slide" controls indicators background="#ababab" img-width="99%" 
+                            img-height="480" style="text-shadow: 1px 1px 2px #333;max-height: 480px;"
+                            @sliding-start="onSlideStart" @sliding-end="onSlideEnd">
+                            <!-- Text slides with image -->
+                            <div class="gallery-item">
+                                <b-carousel-slide v-b-modal.modal-center>
+                                    <!-- :img-src="img.imgBlob"
+                                    > -->
+                                    <template #img>
+                                        <img src="https://images.unsplash.com/photo-1497445462247-4330a224fdb1?w=500&h=500&fit=crop"
+                                            alt="Image" class="image-container">
+                                    </template>
+                                    <div class="left-text" @click="mvModal(article)">
+                                        <h3>{{ article.subject }}</h3>
+                                        <div>
+                                            <span style="margin-right: 15px; display: inline-block;">#{{ article.userId
+                                            }}</span>
+                                            <span style="margin-left: 15px;">{{ article.registerTime }}</span>
+                                        </div>
+                                    </div>
+                                </b-carousel-slide>
+                            </div>
+                        </b-carousel>
+                    </div>
 
                     <div class="gallery-item-info">
 
                         <ul>
-                            <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i class="fas fa-heart"
-                                    aria-hidden="true"></i> 89</li>
-                            <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i
-                                    class="fas fa-comment" aria-hidden="true"></i> 5</li>
+                            <li class="gallery-item-likes"><b-icon icon="heart" font-scale="0.8"></b-icon> 89</li>
+                            <li class="gallery-item-likes"><b-icon icon="chat" font-scale="0.8"></b-icon> 5</li>
+                            <li class="gallery-item-comments"><b-icon icon="eye" font-scale="0.8"></b-icon> {{ article.hit
+                            }}</li>
                         </ul>
 
                     </div>
                 </div>
-                <div>
-                    <div class="card__title">{{ article.subject }}</div>
-                    <p class="card__text">작성자: {{ article.userId }}</p>
-                    <p class="card__text">내용: {{ article.content }}</p>
-                    <p class="card__text">등록일: {{ article.registerTime }}</p>
-                    <p class="card__text">조회수: {{ article.hit }}</p>
-                    <button class="btn btn--block card__btn">Button</button>
-                </div>
             </div>
+            <div>
+                <b-modal id="modal-center" centered hide-header hide-footer v-if="pickedArticle" size="xl">
+                    <div>
+                        <b-icon icon="person-fill" font-scale="1.5"></b-icon>
+                        <h4 style="display: inline-block; font-family: 'Jua', sans-serif;">{{ pickedArticle.userId }}</h4>
+                    </div>
 
+                    <!-- 만약 사진을 올린경우-->
+                    <b-carousel v-if="pickedArticle.imgsIsExist == 'Y'" id="cars" v-model="pickedArticle.imgSlideNum" controls indicators background="#ababab"
+                            img-width="1024" img-height="480" style="text-shadow: 1px 1px 2px #333;" class="modal_carousel"
+                            @sliding-start="onSlideStart" @sliding-end="onSlideEnd">
+                            <div v-for="(img, index) in pickedArticlesImg" :key="index" class="gallery-item">
+                                <b-carousel-slide>
+                                    <template #img>
+                                        <img :src="img" alt="Image" class="image-container">
+                                    </template>
+                                </b-carousel-slide>
+                            </div>
+                    </b-carousel>
+                    
+                    <!-- 만약 사진을 올리지 않은 경우-->
+                    <b-carousel id="cars" v-model="pickedArticle.imgSlideNum" controls indicators background="#ababab"
+                            img-width="1024" img-height="480" style="text-shadow: 1px 1px 2px #333;" class="modal_carousel"
+                            @sliding-start="onSlideStart" @sliding-end="onSlideEnd" v-else>
+                            <div class="gallery-item">
+                                <b-carousel-slide>
+                                    <template #img>
+                                        <img src="https://images.unsplash.com/photo-1497445462247-4330a224fdb1?w=500&h=500&fit=crop"
+                                            alt="Image" class="image-container">
+                                    </template>
+                                </b-carousel-slide>
+                            </div>
+                    </b-carousel>
+
+                    <div class="articleInfo">
+                        <div class="articleContent">
+                            <span>{{ pickedArticle.registerTime }}</span>
+                            <h2 style="border-bottom: 1px solid #dee2e6;">#{{ pickedArticle.subject }}</h2>
+                            <div class="contentIn">{{ pickedArticle.content }}</div>
+                            <div class="modal-item">
+                                <ul>
+                                    <li class="gallery-item-likes"><b-icon icon="heart" font-scale="0.8"></b-icon> 89</li>
+                                    <li class="gallery-item-likes"><b-icon icon="chat" font-scale="0.8"></b-icon> 5</li>
+                                    <li class="gallery-item-comments"><b-icon icon="eye" font-scale="0.8"></b-icon> {{ pickedArticle.hit }}</li>
+                                </ul>
+                            </div>
+                            <span v-if="pickedArticle.userId == userId"
+                            style="padding-top: 10px;
+                                text-align: right;
+                                display: inline-block;
+                                width: 100%;
+                                text-decoration: none;">
+                                <router-link class="link modal_Atag_style" :to="{ name: 'userboardmodify',query: { 
+                                    article: pickedArticle,
+                                    imgs: pickedArticlesImg,
+                                    totalFiles: pickedArticlesImg.length
+                                    }}">
+                                    <span>수정하기</span>
+                                </router-link>
+                                <span class="modal_Atag_style"> | </span>
+                                <a href="" class="modal_Atag_style"><span>삭제하기</span></a>
+                            </span>
+                        </div>
+                        <div>
+                            
+                        </div>
+                    </div>
+                </b-modal>
+            </div>
         </div>
 
 
@@ -64,6 +175,7 @@
 
 <script>
 import http from "@/api/http";
+import { mapState } from "vuex";
 export default ({
     name: "UserBoardList",
     props: {
@@ -73,7 +185,9 @@ export default ({
     },
     data() {
         return {
+            userId: this.$store.state.memberStore.userInfo.userId,
             articles: [],
+            imgs: [],
             searchParam_list: {
                 key: this.searchParam.key,
                 word: this.searchParam.word,
@@ -86,9 +200,14 @@ export default ({
                 { value: "article_no", text: "글번호" },
                 { value: "user_id", text: "아이디" },
             ],
+            slide: 0,
+            sliding: null,
+            pickedArticle: null, // 리스트에서 클릭한 article
+            pickedArticlesImg: [], // 해당 리스트에 업로드된 이미지들
         }
     },
     computed: {
+        ...mapState("memberStore", ["isLogin", "userInfo"]),
         rows() {
             return this.searchParam_list.num;
         },
@@ -124,11 +243,47 @@ export default ({
                 });
             this.total();
         },
+        getImgs() {
+            http
+                .get("/userboard/getImgs")
+                .then((response) => {
+                    this.imgs = response.data;
+                });
+        },
+        mvModal(pickedArticle) {
+             //모달로 데이터 넘겨주기.
+            this.pickedArticle = pickedArticle;
+            this.pickedArticlesImg = [];
+            for (var i = 0; i < this.imgs.length; i++){
+                if (this.imgs[i].articleNo == this.pickedArticle.articleNo) {
+                    this.pickedArticlesImg.push(this.imgs[i].imgBlob);
+                }
+            }
+            //모달로 이동한경우 조회수 증가시키기
+            http
+                .get(`/userboard/view/${pickedArticle.articleNo}`, {
+                    params: {
+                        key: this.searchParam_list.key,
+                        word: this.searchParam_list.word,
+                        pg: this.searchParam_list.pg,
+                    },
+                })
+                .then((response) => {
+                    this.articles = response.data;
+                });
+        },
+        onSlideStart() {
+        this.sliding = true
+            },
+            onSlideEnd() {
+                this.sliding = false
+            }
     },
     created() {
         this.search();
+        this.getImgs();
     },
-
+    
 })
 
 </script>
@@ -157,7 +312,6 @@ Flexbox and floats are used as a fallback so that browsers which don't support g
 }
 
 body {
-    font-family: "Open Sans", Arial, sans-serif;
     min-height: 100vh;
     background-color: #fafafa;
     color: #262626;
@@ -172,20 +326,6 @@ img {
     max-width: 93.5rem;
     margin: 0 auto;
     padding: 0 2rem;
-}
-
-.btn {
-    display: inline-block;
-    font: inherit;
-    background: none;
-    border: none;
-    color: inherit;
-    padding: 0;
-    cursor: pointer;
-}
-
-.btn:focus {
-    outline: 0.5rem auto #4d90fe;
 }
 
 .visually-hidden {
@@ -321,7 +461,7 @@ img {
 }
 
 .gallery-item-likes {
-    margin-right: 2.2rem;
+    margin-right: 1.2rem;
 }
 
 .gallery-item-type {
@@ -512,5 +652,67 @@ Remove or comment-out the code block below to see how the browser will fall-back
             margin: 0;
         }
     }
+}
+
+/* 리스트 이미지 관련 css */
+.image-container {
+    max-height: 480px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 430px;
+}
+
+.image-container img {
+    width: auto !important;
+    height: auto !important;
+    max-height: 100% !important;
+}
+/* 모달창 */
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+.modal{
+    font-family: 'Jua', sans-serif;
+}
+.modal_carousel{
+    display: inline-block;
+    width: 48%;
+    margin-left: 2%;
+}
+/* 모달창 글정보 */
+.articleInfo{
+    display: inline-block;
+    width: 48%;
+    margin-right: 2%;
+    font-family: 'Jua', sans-serif;
+}
+.articleContent{
+    padding: 4%;
+    top: 3%;
+    position: absolute;
+    width: 48%;
+}
+.modal-item{
+    width: 100%;
+    height: 100%;
+    text-align: right;
+    border-bottom: 1px solid #dee2e6;
+}
+.modal-item li {
+    display: inline-block;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+.contentIn{
+    padding: 5%;
+    width: 100%;
+    height: fit-content;
+    min-height: 200px;
+}
+.modal_Atag_style{
+    text-decoration: none;
+    color: #a7a9ac !important;
+    font-size: small;
 }
 </style>
