@@ -21,9 +21,16 @@
     </div>
 
     <div class="main">
-      <!-- 지도 -->
       <div class="map_controller">
+        <!-- 컨트롤러 -->
         <b-form class="d-flex" style="margin-bottom: 5px" @submit.prevent="submitForm">
+          <font-awesome-icon
+            :icon="['fass', 'square-plus']"
+            size="2xl"
+            class="mr-1"
+            style="justify-content: center; height: 38px"
+            v-b-toggle.subController
+          />
           <b-form-select
             v-model="formData.searchArea"
             :options="options_area"
@@ -42,6 +49,18 @@
           <b-form-input v-model="formData.searchKeyword" class="mr-1"></b-form-input>
           <b-button type="submit" variant="outline-secondary" style="width: 200px"> 검색 </b-button>
         </b-form>
+        <!-- 서브 컨트롤러 확장 -->
+        <b-collapse id="subController" style="margin-bottom: 5px">
+          <b-card title="controller">
+            <b-form-checkbox v-model="searchMarkerState" name="check-button" switch>
+              Search Marker
+            </b-form-checkbox>
+            <b-form-checkbox v-model="planMarkerState" name="check-button" switch>
+              Plan Marker
+            </b-form-checkbox>
+          </b-card>
+        </b-collapse>
+        <!-- 지도 -->
         <div id="map" style="width: 100%; height: 500px"></div>
       </div>
       <!-- 계획 -->
@@ -62,7 +81,12 @@
             :key="index"
             class="custom_card"
           >
-            <img :src="plan.firstImage" alt="" style="width: 100px" />
+            <img
+              :src="plan.firstImage"
+              @error="noImage"
+              style="width: 100px; cursor: pointer"
+              @click="moveCenter(plan.latitude, plan.longitude)"
+            />
             <div class="plan_content">
               <div>
                 {{ plan.title }}<br />
@@ -74,16 +98,19 @@
                 @click="upPlan(index)"
                 :icon="['fas', 'circle-chevron-up']"
                 size="xl"
+                style="cursor: pointer"
               />
               <font-awesome-icon
                 @click="removePlan(index)"
                 :icon="['fas', 'trash-can']"
                 size="xl"
+                style="cursor: pointer"
               />
               <font-awesome-icon
                 @click="downPlan(index)"
                 :icon="['fas', 'circle-chevron-down']"
                 size="xl"
+                style="cursor: pointer"
               />
             </div>
           </div>
@@ -106,22 +133,30 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in items" :key="item.contentId">
+          <tr v-for="list in lists" :key="list.contentId">
             <td>
-              <img :src="item.firstImage" style="object-fit: cover" />
+              <img :src="list.firstImage" style="object-fit: cover" />
             </td>
-            <td>{{ item.title }}</td>
-            <td>{{ item.addr1 }}</td>
-            <td>{{ item.distance }} km</td>
-            <td style="display: none">{{ item.latitude }}</td>
-            <td style="display: none">{{ item.longitude }}</td>
-            <td>{{ item.overview }}</td>
+            <td>{{ list.title }}</td>
+            <td>{{ list.addr1 }}</td>
+            <td>{{ list.distance }} km</td>
+            <td style="display: none">{{ list.latitude }}</td>
+            <td style="display: none">{{ list.longitude }}</td>
+            <td>{{ list.overview }}</td>
             <td>
-              <b-button variant="primary" @click="addPlan(item)">ADD</b-button>
+              <b-button variant="primary" @click="addPlan(list)">ADD</b-button>
             </td>
           </tr>
         </tbody>
       </table>
+      <div style="display: flex; justify-content: center; align-items: center">
+        <b-pagination
+          :total-rows="totalRows"
+          v-model="pagingParam.currentPage"
+          :per-page="pagingParam.perPage"
+        >
+        </b-pagination>
+      </div>
     </div>
     <!-- modal -->
     <b-modal
@@ -177,6 +212,12 @@ export default {
         searchContentId: "",
         searchKeyword: "",
       },
+      pagingParam: {
+        currentPage: 1,
+        perPage: 10,
+      },
+      searchMarkerState: true,
+      planMarkerState: true,
       items: [],
       tabCounter: 0,
       currentTab: 0,
@@ -187,8 +228,11 @@ export default {
         },
       ],
       map: null,
-      markers: [],
-      overlays: [],
+      imageSrc: "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png",
+      searchMarkers: [],
+      planMarkers: [],
+      searchOverlays: [],
+      planOverlays: [],
       polyline: null,
       dots: [],
       linePath: [],
@@ -233,14 +277,42 @@ export default {
   },
   computed: {
     ...mapState("memberStore", ["isLogin", "userInfo"]),
+    lists() {
+      const copy = this.items;
+      return copy.slice(
+        (this.pagingParam.currentPage - 1) * this.pagingParam.perPage,
+        this.pagingParam.currentPage * this.pagingParam.perPage
+      );
+    },
+    totalRows() {
+      return this.items.length;
+    },
   },
   mounted() {
     this.createMap();
   },
-  created() {
-    this.loadPlan();
+  watch: {
+    searchMarkerState: function () {
+      if (this.searchMarkerState === true) {
+        this.markerController(this.searchMarkers, "show");
+      } else {
+        this.overlayController(this.searchOverlays, "hide");
+        this.markerController(this.searchMarkers, "hide");
+      }
+    },
+    planMarkerState: function () {
+      if (this.planMarkerState === true) {
+        this.markerController(this.planMarkers, "show");
+      } else {
+        this.overlayController(this.planOverlays, "hide");
+        this.markerController(this.planMarkers, "hide");
+      }
+    },
   },
   methods: {
+    noImage(e) {
+      e.target.src = require("@/assets/icon/noimage.png");
+    },
     savePlan() {
       http
         .post("/travelplan/save", {
@@ -261,9 +333,6 @@ export default {
         });
     },
     loadPlan() {
-      console.log("loading....");
-      console.log(this.userInfo.userId);
-      console.log(this.$route.query.name);
       http
         .get("/travelplan/load", {
           params: {
@@ -275,6 +344,14 @@ export default {
           if (response.data !== null && response.data !== "") {
             this.plans = response.data;
             this.$nextTick(() => {});
+            this.makeMarker(
+              this.plans[this.currentTab].data,
+              this.planMarkers,
+              this.planOverlays,
+              this.planMarkerState,
+              "plan"
+            );
+            this.updatePlan();
           }
         });
     },
@@ -294,6 +371,13 @@ export default {
     },
     tabPlan(index) {
       this.currentTab = index;
+      this.makeMarker(
+        this.plans[this.currentTab].data,
+        this.planMarkers,
+        this.planOverlays,
+        this.planMarkerState,
+        "plan"
+      );
       this.updatePlan();
     },
     addPlan(item) {
@@ -306,6 +390,13 @@ export default {
         firstImage: item.firstImage,
       });
       this.updatePlan();
+      this.makeMarker(
+        this.plans[this.currentTab].data,
+        this.planMarkers,
+        this.planOverlays,
+        this.planMarkerState,
+        "plan"
+      );
     },
     removePlan(index) {
       this.plans[this.currentTab].data.splice(index, 1);
@@ -337,6 +428,9 @@ export default {
         this.updatePlan(index + 1);
       }
     },
+    /*
+      index: 업데이트 후 이동
+    */
     updatePlan(index) {
       // 변수
       let i;
@@ -403,6 +497,9 @@ export default {
         level: 7,
       };
       this.map = new kakao.maps.Map(container, options);
+
+      // 계획 가져오기
+      this.loadPlan();
     },
     // 관광지 리스트 출력
     submitForm() {
@@ -413,7 +510,12 @@ export default {
           .post("/tripsearch/list", this.formData)
           .then((response) => {
             this.items = response.data;
-            this.makeMarker(this.items);
+            this.makeMarker(
+              this.items,
+              this.searchMarkers,
+              this.searchOverlays,
+              this.searchMarkerState
+            );
           })
           .catch((error) => {
             console.log(error);
@@ -428,39 +530,79 @@ export default {
       };
     },
 
-    // 마커 제거
-    removeMarker() {
-      for (var i = 0; i < this.markers.length; i++) {
-        this.markers[i].setMap(null);
+    // 마커 컨트롤러
+    markerController(markers, action) {
+      var i = 0;
+      if (action === "reset") {
+        for (i = 0; i < markers.length; i++) {
+          markers[i].setMap(null);
+        }
+        markers.length = 0;
+      } else if (action === "show") {
+        for (i = 0; i < markers.length; i++) {
+          markers[i].setMap(this.map);
+        }
+      } else if (action === "hide") {
+        for (i = 0; i < markers.length; i++) {
+          markers[i].setMap(null);
+        }
       }
-      this.markers = [];
+    },
+
+    // 오버레이 컨트롤러
+    overlayController(overlays, action) {
+      var i = 0;
+      if (action === "reset") {
+        for (i = 0; i < overlays.length; i++) {
+          overlays[i].setMap(null);
+        }
+        overlays.length = 0;
+      } else if (action === "show") {
+        for (i = 0; i < overlays.length; i++) {
+          overlays[i].setMap(this.map);
+        }
+      } else if (action === "hide") {
+        for (i = 0; i < overlays.length; i++) {
+          overlays[i].setMap(null);
+        }
+      }
     },
 
     // 마커 생성
-    makeMarker(items) {
+    makeMarker(items, markers, overlays, state, name) {
       // 변수
       var i;
-      // 기존마커 제거
-      this.removeMarker();
+      // 기존 마커 제거
+      this.markerController(markers, "reset");
+      // 기존 오버레이 제거
+      this.overlayController(overlays, "reset");
 
       // 추가 : forEach로 변경 필요
       for (i = 0; i < items.length; i++) {
         // 상수 고정
         const map = this.map;
         const num = i;
+
+        // 마커 이미지
+        if (name === "plan") {
+          var imageSize = new window.kakao.maps.Size(24, 35);
+          var markerImage = new window.kakao.maps.MarkerImage(this.imageSrc, imageSize);
+        }
+
         // 마커 생성
         var marker = new window.kakao.maps.Marker({
           map: this.map,
           position: new window.kakao.maps.LatLng(items[i].latitude, items[i].longitude),
           clickable: true,
+          image: markerImage,
         });
-        this.markers.push(marker);
+        markers.push(marker);
         // 오버레이 생성(상수 고정)
         const overlay = new window.kakao.maps.CustomOverlay({
           map: this.map,
           position: marker.getPosition(),
         });
-        this.overlays.push(overlay);
+        overlays.push(overlay);
         // DOC parse
         var content = document.createElement("div");
         content.className = "wrap";
@@ -472,7 +614,7 @@ export default {
         var close = document.createElement("div");
         close.className = "close";
         close.onclick = () => {
-          this.overlays[num].setMap(null);
+          overlays[num].setMap(null);
         };
         title.appendChild(close);
         var body = document.createElement("div");
@@ -501,16 +643,19 @@ export default {
         content.appendChild(info);
 
         // 오버레이 내용 추가
-        this.overlays[num].setContent(content);
+        overlays[num].setContent(content);
         // 오버레이 숨기기
         overlay.setMap(null);
+        if (state === false) {
+          marker.setMap(null);
+        }
         // 마커를 클릭했을 때 커스텀 오버레이를 표시한다.
         kakao.maps.event.addListener(marker, "click", function () {
           overlay.setMap(map);
         });
       }
       // 마커위치로 화면 이동
-      this.moveCenter(items[0].latitude, items[0].longitude);
+      if (items.length > 0) this.moveCenter(items[0].latitude, items[0].longitude);
     },
     // 중심 이동
     moveCenter(lat, lng) {
@@ -616,6 +761,9 @@ b-card {
 img {
   height: auto;
   width: 100px;
+}
+font-awesome-icon:hover {
+  cursor: pointer;
 }
 /* Custom Overlay : dot */
 .dot {
