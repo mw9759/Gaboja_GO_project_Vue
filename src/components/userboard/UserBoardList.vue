@@ -121,10 +121,16 @@
 
           <div class="gallery-item-info">
             <ul>
-              <li v-if="isLike(article.articleNo)" class="gallery-item-likes"><b-icon icon="heart-fill" font-scale="0.8"></b-icon>{{ article.likeCnt }}</li>
-              <li v-else class="gallery-item-likes"><b-icon icon="heart" font-scale="0.8"></b-icon>{{ article.likeCnt }}</li>
+              <li v-if="isLike(article.articleNo)" class="gallery-item-likes">
+                <b-icon icon="heart-fill" font-scale="0.8"></b-icon>{{ article.likeCnt }}
+              </li>
+              <li v-else class="gallery-item-likes">
+                <b-icon icon="heart" font-scale="0.8"></b-icon>{{ article.likeCnt }}
+              </li>
 
-              <li class="gallery-item-likes"><b-icon icon="chat" font-scale="0.8"></b-icon> {{ article.commentCnt }}</li>
+              <li class="gallery-item-likes">
+                <b-icon icon="chat" font-scale="0.8"></b-icon> {{ article.commentCnt }}
+              </li>
               <li class="gallery-item-comments">
                 <b-icon icon="eye" font-scale="0.8"></b-icon> {{ article.hit }}
               </li>
@@ -146,8 +152,15 @@
             <b-avatar size="40">
               <img :src="userInfo.profileImg" alt="Profile" />
             </b-avatar>
-            <router-link :to="{ name: 'Profile', params: { userId: pickedArticle.userId }}">
-              <h4 style="display: inline-block; vertical-align: middle; margin-left: 10px;font-family: 'Jua', sans-serif;">
+            <router-link :to="{ name: 'Profile', params: { userId: pickedArticle.userId } }">
+              <h4
+                style="
+                  display: inline-block;
+                  vertical-align: middle;
+                  margin-left: 10px;
+                  font-family: 'Jua', sans-serif;
+                "
+              >
                 {{ pickedArticle.userId }}
               </h4>
             </router-link>
@@ -213,10 +226,22 @@
               <div class="modal-item">
                 <ul>
                   <li v-if="isLike(pickedArticle.articleNo)" class="gallery-item-likes">
-                    <b-icon style="cursor: pointer;" icon="heart-fill" font-scale="0.8" @click="clickHeart(pickedArticle.articleNo, pickedArticle.likeCnt)"></b-icon> {{ pickedArticle.likeCnt }}
+                    <b-icon
+                      style="cursor: pointer"
+                      icon="heart-fill"
+                      font-scale="0.8"
+                      @click="clickHeart(pickedArticle.articleNo, pickedArticle.likeCnt)"
+                    ></b-icon>
+                    {{ pickedArticle.likeCnt }}
                   </li>
                   <li v-else class="gallery-item-likes">
-                    <b-icon style="cursor: pointer;" icon="heart" font-scale="0.8" @click="clickHeart(pickedArticle.articleNo, pickedArticle.likeCnt)"></b-icon> {{ pickedArticle.likeCnt }}
+                    <b-icon
+                      style="cursor: pointer"
+                      icon="heart"
+                      font-scale="0.8"
+                      @click="clickHeart(pickedArticle.articleNo, pickedArticle.likeCnt)"
+                    ></b-icon>
+                    {{ pickedArticle.likeCnt }}
                   </li>
 
                   <li class="gallery-item-likes">
@@ -261,13 +286,19 @@
           <!-- 댓글 창 -->
           <div class="comments">
             <h2 class="comments_title">
-              댓글 <span style="font-size: medium; vertical-align: middle;">{{ comments.length }}</span>
+              댓글
+              <span style="font-size: medium; vertical-align: middle">{{ comments.length }}</span>
             </h2>
             <div style="border-bottom: 1px solid #a7a9ac; padding-bottom: 0.5rem">
               <b-avatar size="50">
                 <img :src="userInfo.profileImg" alt="Profile" />
               </b-avatar>
-              <input type="text" class="comments_input" placeholder="댓글 추가...." v-model="writedComment"/>
+              <input
+                type="text"
+                class="comments_input"
+                placeholder="댓글 추가...."
+                v-model="writedComment"
+              />
               <b-button
                 size="sm"
                 class="mb-2"
@@ -292,29 +323,44 @@
               </b-avatar>
               <span style="vertical-align: middle; margin-left: 8px">
                 <span style="color: #19c653" v-if="userId == comment.userId"
-                  >내가작성한 글({{ comment.userId }})<b-icon icon="emoji-smile" aria-hidden="true"></b-icon
+                  >내가작성한 글({{ comment.userId }})<b-icon
+                    icon="emoji-smile"
+                    aria-hidden="true"
+                  ></b-icon
                 ></span>
                 <span v-else>{{ comment.userId }}</span>
                 <b-icon icon="dot" aria-hidden="true"></b-icon>
-                <span style="font-size: 0.8rem; color: #a7a9ac;">
+                <span style="font-size: 0.8rem; color: #a7a9ac">
                   {{ comment.registerTime }}
                 </span>
-                <span v-if="comment.isModify == 1" style="background-color: #7485F0;
-                                                          padding: 6px;
-                                                          color: white;
-                                                          margin-right: 6px;
-                                                          border-radius: 5px;">수정됨</span>
-                <span v-if="comment.userId == pickedArticle.userId" style="background-color: #FA4245;
-                                                          padding: 6px;
-                                                          color: white;
-                                                          border-radius: 5px;">작성자</span>
+                <span
+                  v-if="comment.isModify == 1"
+                  style="
+                    background-color: #7485f0;
+                    padding: 6px;
+                    color: white;
+                    margin-right: 6px;
+                    border-radius: 5px;
+                  "
+                  >수정됨</span
+                >
+                <span
+                  v-if="comment.userId == pickedArticle.userId"
+                  style="background-color: #fa4245; padding: 6px; color: white; border-radius: 5px"
+                  >작성자</span
+                >
               </span>
 
-              <input v-if="comment.userId == userInfo.userId" type="text" class="commentIn" v-model="comment.content">
-              <input v-else type="text" readonly class="commentIn" v-model="comment.content">
+              <input
+                v-if="comment.userId == userInfo.userId"
+                type="text"
+                class="commentIn"
+                v-model="comment.content"
+              />
+              <input v-else type="text" readonly class="commentIn" v-model="comment.content" />
 
               <div class="comment-item">
-                <ul style="display: inline-block;">
+                <ul style="display: inline-block">
                   <li class="gallery-item-likes c-li">
                     <b-icon icon="heart" font-scale="0.8"></b-icon> 0
                   </li>
@@ -328,14 +374,16 @@
                     <span>수정하기</span>
                   </a>
                   <span class="modal_Atag_style"> | </span>
-                  <a class="modal_Atag_style" @click="deleteComment(comment.commentNo, comment.articleNo)">
+                  <a
+                    class="modal_Atag_style"
+                    @click="deleteComment(comment.commentNo, comment.articleNo)"
+                  >
                     <span>삭제하기</span>
                   </a>
                 </span>
               </div>
             </div>
           </div>
-
         </b-modal>
       </div>
     </div>
@@ -385,7 +433,7 @@ export default {
       pickedArticlesImg: [], // 해당 리스트에 업로드된 이미지들
       comments: [], // 해당 게시글에 대한 댓글
       writedComment: null, // 사용자가 작성중인 댓글
-      likeBoards: [],// 사용자가 좋아요 누른 게시글
+      likeBoards: [], // 사용자가 좋아요 누른 게시글
     };
   },
   computed: {
@@ -399,7 +447,7 @@ export default {
     ...mapActions(memberStore, ["userLogout", "getUserInfo"]),
     //좋아요 눌렀는지 확인
     isLike(articleNo) {
-      for (var i = 0; i < this.likeBoards.length; i++){
+      for (var i = 0; i < this.likeBoards.length; i++) {
         if (articleNo == this.likeBoards[i]) {
           return true;
         }
@@ -408,17 +456,17 @@ export default {
     },
     // 좋아요 역변
     clickHeart(articleNo, likeCnt) {
-      for (var i = 0; i < this.likeBoards.length; i++){
+      for (var i = 0; i < this.likeBoards.length; i++) {
         if (articleNo == this.likeBoards[i]) {
           this.likeBoards.splice(i, 1);
           this.pickedArticle.likeCnt -= 1;
-          this.updateLikeBoards(articleNo, likeCnt-1);// 좋아요 정보 업데이트 
+          this.updateLikeBoards(articleNo, likeCnt - 1); // 좋아요 정보 업데이트
           return;
         }
       }
       this.likeBoards.push(articleNo);
       this.pickedArticle.likeCnt += 1;
-      this.updateLikeBoards(articleNo, likeCnt+1);// 좋아요 정보 업데이트 
+      this.updateLikeBoards(articleNo, likeCnt + 1); // 좋아요 정보 업데이트
     },
     // 좋아요 정보 업데이트
     updateLikeBoards(articleNo, likeCnt) {
@@ -495,11 +543,9 @@ export default {
     },
     //해당 게시글 댓글 불러오기
     getComments(articleNo) {
-      http
-        .get(`/userboard/getComments/${articleNo}`)
-        .then((response) => {
-          this.comments = response.data;
-        });
+      http.get(`/userboard/getComments/${articleNo}`).then((response) => {
+        this.comments = response.data;
+      });
     },
     //해당 게시글 댓글 작성
     uploadComment(articleNo) {
@@ -507,7 +553,7 @@ export default {
         .post(`/userboard/writeComment`, {
           articleNo: articleNo,
           userId: this.userId,
-          content: this.writedComment
+          content: this.writedComment,
         })
         .then((response) => {
           if (response.data == "success") {
@@ -516,7 +562,7 @@ export default {
             this.search();
           }
         });
-    },  
+    },
     // 댓글 삭제
     deleteComment(commentNo, articleNo) {
       http
@@ -534,13 +580,11 @@ export default {
 
     //댓글 수정
     modifyComment(comment) {
-      http
-        .put("/userboard/modifyComment", comment)
-        .then((response) => {
-          if (response.data == "success") {
-            this.getComments(comment.articleNo);
-          }
-        });
+      http.put("/userboard/modifyComment", comment).then((response) => {
+        if (response.data == "success") {
+          this.getComments(comment.articleNo);
+        }
+      });
     },
 
     onSlideStart() {

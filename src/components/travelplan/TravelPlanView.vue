@@ -119,7 +119,7 @@
     </div>
     <!-- 목록 -->
     <div class="list">
-      <table id="resultTable" class="table table-striped">
+      <!-- <table id="resultTable" class="table table-striped">
         <thead style="background-color: aliceblue">
           <tr>
             <th>대표이미지</th>
@@ -148,7 +148,33 @@
             </td>
           </tr>
         </tbody>
-      </table>
+      </table> -->
+
+      <div class="gallery">
+        <div
+          v-for="list in lists"
+          :key="list.contentId"
+          class="gallery-item"
+          tabindex="0"
+          v-b-modal.modal-center
+          @click="mvModal(list)"
+        >
+          <img :src="list.firstImage" class="gallery-image" alt="" @error="noImage" />
+          <div class="gallery-item-info">
+            <ul>
+              <li class="gallery-item-likes">
+                <span class="visually-hidden">Likes:</span
+                ><i class="fas fa-heart" aria-hidden="true"></i> 56
+              </li>
+              <li class="gallery-item-comments">
+                <span class="visually-hidden">Comments:</span
+                ><i class="fas fa-comment" aria-hidden="true"></i> 2
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- Navigation -->
       <div style="display: flex; justify-content: center; align-items: center">
         <b-pagination
           :total-rows="totalRows"
@@ -158,7 +184,8 @@
         </b-pagination>
       </div>
     </div>
-    <!-- modal -->
+
+    <!-- modal : name modify -->
     <b-modal
       id="modal-modify"
       ref="modal"
@@ -184,6 +211,260 @@
       </form>
       <!-- v-model="this.plans[this.currentTab].name" -->
     </b-modal>
+
+    <!-- modal : attraction -->
+    <b-modal
+      id="modal-center"
+      centered
+      hide-header
+      hide-footer
+      scrollable
+      v-if="pickedArticle"
+      size="xl"
+    >
+      <!-- <div style="margin-bottom: 10px">
+        <b-avatar size="40">
+          <img :src="userInfo.profileImg" alt="Profile" />
+        </b-avatar>
+        <router-link :to="{ name: 'Profile', params: { userId: pickedArticle.userId } }">
+          <h4
+            style="
+              display: inline-block;
+              vertical-align: middle;
+              margin-left: 10px;
+              font-family: 'Jua', sans-serif;
+            "
+          >
+            {{ pickedArticle.userId }}
+          </h4>
+        </router-link>
+      </div> -->
+
+      <img
+        :src="pickedArticle.firstImage"
+        alt=""
+        @error="noImage"
+        style="width: 1024; height: 480"
+      />
+      <!-- 만약 사진을 올린경우-->
+      <!-- <b-carousel
+        v-if="pickedArticle.imgsIsExist == 'Y'"
+        id="cars"
+        v-model="pickedArticle.imgSlideNum"
+        controls
+        indicators
+        background="#ababab"
+        img-width="1024"
+        img-height="480"
+        style="text-shadow: 1px 1px 2px #333"
+        class="modal_carousel"
+        @sliding-start="onSlideStart"
+        @sliding-end="onSlideEnd"
+      >
+        <div v-for="(img, index) in pickedArticlesImg" :key="index" class="gallery-item">
+          <b-carousel-slide>
+            <template #img>
+              <img :src="img" alt="Image" class="image-container" />
+            </template>
+          </b-carousel-slide>
+        </div>
+      </b-carousel> -->
+
+      <!-- 만약 사진을 올리지 않은 경우-->
+      <!-- <b-carousel
+        id="cars"
+        v-model="pickedArticle.imgSlideNum"
+        controls
+        indicators
+        background="#ababab"
+        img-width="1024"
+        img-height="480"
+        style="text-shadow: 1px 1px 2px #333"
+        class="modal_carousel"
+        @sliding-start="onSlideStart"
+        @sliding-end="onSlideEnd"
+        v-else
+      >
+        <div class="gallery-item">
+          <b-carousel-slide>
+            <template #img>
+              <img
+                src="https://images.unsplash.com/photo-1497445462247-4330a224fdb1?w=500&h=500&fit=crop"
+                alt="Image"
+                class="image-container"
+              />
+            </template>
+          </b-carousel-slide>
+        </div>
+      </b-carousel> -->
+
+      <!-- 여기 넣어라 -->
+      <div class="articleInfo">
+        <div class="articleContent">
+          <span>{{ pickedArticle.registerTime }}</span>
+          <!-- <h2 style="border-bottom: 1px solid #dee2e6">#{{ pickedArticle.subject }}</h2> -->
+          <!-- <div class="contentIn">{{ pickedArticle.content }}</div> -->
+          <!-- <div class="modal-item">
+            <ul>
+              <li v-if="isLike(pickedArticle.articleNo)" class="gallery-item-likes">
+                <b-icon
+                  style="cursor: pointer"
+                  icon="heart-fill"
+                  font-scale="0.8"
+                  @click="clickHeart(pickedArticle.articleNo, pickedArticle.likeCnt)"
+                ></b-icon>
+                {{ pickedArticle.likeCnt }}
+              </li>
+              <li v-else class="gallery-item-likes">
+                <b-icon
+                  style="cursor: pointer"
+                  icon="heart"
+                  font-scale="0.8"
+                  @click="clickHeart(pickedArticle.articleNo, pickedArticle.likeCnt)"
+                ></b-icon>
+                {{ pickedArticle.likeCnt }}
+              </li>
+
+              <li class="gallery-item-likes">
+                <b-icon icon="chat" font-scale="0.8"></b-icon> {{ comments.length }}
+              </li>
+              <li class="gallery-item-comments">
+                <b-icon icon="eye" font-scale="0.8"></b-icon> {{ pickedArticle.hit }}
+              </li>
+            </ul>
+          </div> -->
+          <!-- <span
+            v-if="pickedArticle.userId == userId"
+            style="
+              padding-top: 10px;
+              text-align: right;
+              display: inline-block;
+              width: 100%;
+              text-decoration: none;
+            "
+          >
+            <router-link
+              class="link modal_Atag_style"
+              :to="{
+                name: 'userboardmodify',
+                query: {
+                  article: pickedArticle,
+                  imgs: pickedArticlesImg,
+                  totalFiles: pickedArticlesImg.length,
+                },
+              }"
+            >
+              <span>수정하기</span>
+            </router-link>
+            <span class="modal_Atag_style"> | </span>
+            <a href="" class="modal_Atag_style" @click="deleteArticle(pickedArticle.articleNo)"
+              ><span>삭제하기</span></a
+            >
+          </span> -->
+        </div>
+        <div></div>
+      </div>
+      <!-- 댓글 창 -->
+      <!-- <div class="comments">
+        <h2 class="comments_title">
+          댓글
+          <span style="font-size: medium; vertical-align: middle">{{ comments.length }}</span>
+        </h2>
+        <div style="border-bottom: 1px solid #a7a9ac; padding-bottom: 0.5rem">
+          <b-avatar size="50">
+            <img :src="userInfo.profileImg" alt="Profile" />
+          </b-avatar>
+          <input
+            type="text"
+            class="comments_input"
+            placeholder="댓글 추가...."
+            v-model="writedComment"
+          />
+          <b-button
+            size="sm"
+            class="mb-2"
+            style="
+              margin-left: 5px;
+              padding: 2%;
+              width: 10%;
+              margin-top: 4px;
+              background-color: #adbbd5;
+              border: none;
+              border-radius: 20px;
+            "
+            @click="uploadComment(pickedArticle.articleNo)"
+          >
+            <b-icon icon="arrow-return-left" aria-hidden="true"></b-icon>
+          </b-button>
+        </div>
+
+        <div style="margin-top: 1rem" v-for="comment in comments" :key="comment.commentNo">
+          <b-avatar size="50">
+            <img :src="comment.profileImg" alt="Profile" />
+          </b-avatar>
+          <span style="vertical-align: middle; margin-left: 8px">
+            <span style="color: #19c653" v-if="userId == comment.userId"
+              >내가작성한 글({{ comment.userId }})<b-icon
+                icon="emoji-smile"
+                aria-hidden="true"
+              ></b-icon
+            ></span>
+            <span v-else>{{ comment.userId }}</span>
+            <b-icon icon="dot" aria-hidden="true"></b-icon>
+            <span style="font-size: 0.8rem; color: #a7a9ac">
+              {{ comment.registerTime }}
+            </span>
+            <span
+              v-if="comment.isModify == 1"
+              style="
+                background-color: #7485f0;
+                padding: 6px;
+                color: white;
+                margin-right: 6px;
+                border-radius: 5px;
+              "
+              >수정됨</span
+            >
+            <span
+              v-if="comment.userId == pickedArticle.userId"
+              style="background-color: #fa4245; padding: 6px; color: white; border-radius: 5px"
+              >작성자</span
+            >
+          </span>
+
+          <input
+            v-if="comment.userId == userInfo.userId"
+            type="text"
+            class="commentIn"
+            v-model="comment.content"
+          />
+          <input v-else type="text" readonly class="commentIn" v-model="comment.content" />
+
+          <div class="comment-item">
+            <ul style="display: inline-block">
+              <li class="gallery-item-likes c-li">
+                <b-icon icon="heart" font-scale="0.8"></b-icon> 0
+              </li>
+              <li class="gallery-item-likes c-li">
+                <b-icon icon="chat" font-scale="0.8"></b-icon> 0
+              </li>
+            </ul>
+            <span v-if="comment.userId == userInfo.userId">
+              <a class="modal_Atag_style" @click="modifyComment(comment)">
+                <span>수정하기</span>
+              </a>
+              <span class="modal_Atag_style"> | </span>
+              <a
+                class="modal_Atag_style"
+                @click="deleteComment(comment.commentNo, comment.articleNo)"
+              >
+                <span>삭제하기</span>
+              </a>
+            </span>
+          </div>
+        </div>
+      </div> -->
+    </b-modal>
   </div>
 </template>
 
@@ -204,6 +485,11 @@ export default {
   name: "TravelPlanVeiw",
   data() {
     return {
+      pickedArticle: null, // 리스트에서 클릭한 article
+      //pickedArticlesImg: [], // 해당 리스트에 업로드된 이미지들
+      comments: [], // 해당 게시글에 대한 댓글
+      writedComment: null, // 사용자가 작성중인 댓글
+      likeBoards: [], // 사용자가 좋아요 누른 게시글
       formData: {
         lati: "",
         long: "",
@@ -214,7 +500,7 @@ export default {
       },
       pagingParam: {
         currentPage: 1,
-        perPage: 10,
+        perPage: 20,
       },
       searchMarkerState: true,
       planMarkerState: true,
@@ -310,6 +596,12 @@ export default {
     },
   },
   methods: {
+    mvModal(pickedArticle) {
+      console.log("!!!");
+      this.pickedArticle = pickedArticle;
+      //모달로 이동한 경우 해당 게시글 댓글 불러오기
+      //this.getComments(pickedArticle.articleNo);
+    },
     noImage(e) {
       e.target.src = require("@/assets/icon/noimage.png");
     },
@@ -694,45 +986,47 @@ export default {
 <style>
 .main {
   display: flex;
-  padding: 5px 20px 5px 20px;
+  padding: 10px 20px 10px 20px;
 }
+
 .title {
   margin: 20px 20px 0px 20px;
   padding: 2px;
 }
+
 .tab_controller {
   margin: 5px 20px 0px 20px;
-  padding: 2px;
-  border: solid 2px gray;
-  background-color: lightgoldenrodyellow;
-  border-radius: 5px;
+  padding: 5px;
   overflow: auto;
   white-space: nowrap;
+  border-radius: 3px;
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
 }
+
 .map_controller {
   padding: 5px 5px 5px 5px;
-  border: solid 2px gray;
-  background-color: lightgoldenrodyellow;
-  border-radius: 5px;
-  margin-right: 5px;
+  margin-right: 10px;
   flex: 2;
+  border-radius: 3px;
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
 }
+
 .plan {
   padding: 5px 5px 0px 5px;
-  border: solid 2px gray;
-  background-color: lightgoldenrodyellow;
-  border-radius: 5px;
   max-height: 558px;
   overflow-y: auto;
   flex: 1;
+  border-radius: 3px;
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
 }
+
 .list {
   margin: 0px 20px 20px 20px;
   padding: 5px 5px 5px 5px;
-  border: solid 2px gray;
-  background-color: lightgoldenrodyellow;
-  border-radius: 5px;
+  border-radius: 3px;
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
 }
+
 .custom_card {
   display: flex;
   height: 100px;
@@ -742,10 +1036,12 @@ export default {
   border-radius: 5px;
   overflow: hidden;
 }
+
 .plan_content {
   padding: 5px;
   flex-grow: 1;
 }
+
 .plan_controller {
   display: flex;
   flex-direction: column;
@@ -755,17 +1051,22 @@ export default {
   background-color: lightgray;
   align-content: center;
 }
+
 b-card {
   margin-bottom: 5px;
 }
+
 img {
   height: auto;
   width: 100px;
 }
+
 font-awesome-icon:hover {
   cursor: pointer;
 }
+
 /* Custom Overlay : dot */
+
 .dot {
   overflow: hidden;
   float: left;
@@ -773,7 +1074,9 @@ font-awesome-icon:hover {
   height: 12px;
   background: url("https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/mini_circle.png");
 }
+
 /* Custom Overlay : info */
+
 .wrap {
   position: absolute;
   left: 0;
@@ -787,10 +1090,12 @@ font-awesome-icon:hover {
   font-family: "Malgun Gothic", dotum, "돋움", sans-serif;
   line-height: 1.5;
 }
+
 .wrap * {
   padding: 0;
   margin: 0;
 }
+
 .wrap .info {
   width: 286px;
   height: 120px;
@@ -800,10 +1105,12 @@ font-awesome-icon:hover {
   overflow: hidden;
   background: #fff;
 }
+
 .wrap .info:nth-child(1) {
   border: 0;
   box-shadow: 0px 1px 2px #888;
 }
+
 .info .title {
   padding: 5px 0 0 10px;
   height: 30px;
@@ -812,6 +1119,7 @@ font-awesome-icon:hover {
   font-size: 18px;
   font-weight: bold;
 }
+
 .info .close {
   position: absolute;
   top: 10px;
@@ -821,28 +1129,34 @@ font-awesome-icon:hover {
   height: 17px;
   background: url("https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/overlay_close.png");
 }
+
 .info .close:hover {
   cursor: pointer;
 }
+
 .info .body {
   position: relative;
   overflow: hidden;
 }
+
 .info .desc {
   position: relative;
   margin: 13px 0 0 90px;
   height: 75px;
 }
+
 .desc .ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .desc .jibun {
   font-size: 11px;
   color: #888;
   margin-top: -2px;
 }
+
 .info .img {
   position: absolute;
   top: 6px;
@@ -853,6 +1167,7 @@ font-awesome-icon:hover {
   color: #888;
   overflow: hidden;
 }
+
 .info:after {
   content: "";
   position: absolute;
@@ -863,7 +1178,138 @@ font-awesome-icon:hover {
   height: 12px;
   background: url("https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white.png");
 }
+
 .info .link {
   color: #5085bb;
+}
+
+/* Gallery Section */
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -1rem -1rem;
+  padding-bottom: 3rem;
+}
+
+.gallery-item {
+  position: relative;
+  flex: 1 0 22rem;
+  margin: 1rem;
+  color: #fff;
+  cursor: pointer;
+}
+
+.gallery-item:hover .gallery-item-info,
+.gallery-item:focus .gallery-item-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.gallery-item-info {
+  display: none;
+}
+
+.gallery-item-info li {
+  display: inline-block;
+  font-size: 1.7rem;
+  font-weight: 600;
+}
+
+.gallery-item-likes {
+  margin-right: 2.2rem;
+}
+
+.gallery-item-type {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 2.5rem;
+  text-shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.1);
+}
+
+.fa-clone,
+.fa-comment {
+  transform: rotateY(180deg);
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* CSS grid */
+
+@supports (display: grid) {
+  .gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-gap: 2rem;
+  }
+  .gallery-item,
+  .gallery {
+    width: auto;
+    margin: 0;
+  }
+}
+
+/* modal : attraction */
+.modal {
+  font-family: "Jua", sans-serif;
+}
+
+.modal_carousel {
+  display: inline-block;
+  width: 48%;
+  margin-left: 2%;
+}
+
+/* 모달창 글정보 */
+.articleInfo {
+  display: inline-block;
+  width: 48%;
+  margin-right: 2%;
+  font-family: "Jua", sans-serif;
+}
+
+.articleContent {
+  padding: 4%;
+  top: 3%;
+  position: absolute;
+  width: 48%;
+}
+
+.modal-item {
+  width: 100%;
+  height: 100%;
+  text-align: right;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-item li {
+  display: inline-block;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.contentIn {
+  padding: 5%;
+  width: 100%;
+  height: fit-content;
+  min-height: 200px;
+}
+
+.modal_Atag_style {
+  text-decoration: none;
+  color: #a7a9ac !important;
+  font-size: small;
+  cursor: pointer;
 }
 </style>

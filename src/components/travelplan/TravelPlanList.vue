@@ -1,11 +1,11 @@
 <template>
-  <div class="plan_list">
+  <div class="planWrapper">
     <div class="m-3">
       <!-- 여행목록 -->
       <div
         v-for="trip in trips"
         :key="trip"
-        class="plan p-3 m-3 d-flex"
+        class="planContent p-3 m-3 d-flex"
         style="background-color: white; justify-content: space-between"
       >
         <div>{{ trip }}</div>
@@ -136,13 +136,13 @@ export default {
 </script>
 
 <style>
-.plan_list {
+.planWrapper {
   margin-left: 10%;
   margin-right: 10%;
   padding: 3px;
 }
 
-.plan {
+.planContent {
   border: 2px solid gray;
   border-radius: 10px;
 }
