@@ -10,7 +10,7 @@
                                 src="https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg"
                                 alt="">
                         </label>
-                        <input class="show-for-sr" type="file" style="display: none;" id="upload_imgs" name="upload_imgs[]"
+                        <input v-if="userInfos.userId == userInfo.userId" class="show-for-sr" type="file" style="display: none;" id="upload_imgs" name="upload_imgs[]"
                             multiple v-on:change="previewImgs" />
                     </div>
 
@@ -18,7 +18,7 @@
 
                         <h1 class="profile-user-name">{{ userInfos.userId }}</h1>
 
-                        <b-dropdown id="dropdown-1" text="SETTINGS" class="m-md-2">
+                        <b-dropdown id="dropdown-1" text="SETTINGS" class="m-md-2" v-if="userInfos.userId == userInfo.userId">
                             <b-dropdown-item>정보수정</b-dropdown-item>
                             <b-dropdown-item @click="checkDelete">떠나기</b-dropdown-item>
                         </b-dropdown>
@@ -307,11 +307,26 @@ export default {
     },
 
     created() {
-        let token = sessionStorage.getItem("access-token");
-        this.getUserInfo(token);
-        this.userInfos = this.$store.state.memberStore.userInfo;
-        this.search();
-        this.blobfile = this.userInfos.profileImg;
+        // 다른 사용자일 경우
+        const userId = this.$route.params.userId;
+        if (userId) {
+            this.isVisitor = true;
+            http
+                .get(`/user/userinfo/${userId}`)
+                .then((response) => {
+                    this.userInfos = response.data;
+                    this.blobfile = this.userInfos.profileImg;
+                    this.search();
+                });
+        }
+        // 본인일 경우
+        else {
+            let token = sessionStorage.getItem("access-token");
+            this.getUserInfo(token);
+            this.userInfos = this.$store.state.memberStore.userInfo;
+            this.search();
+            this.blobfile = this.userInfos.profileImg;
+        }
         if (JSON.parse(this.userInfo.likeBoards)) {
             this.likeBoards = JSON.parse(this.userInfo.likeBoards);
         }
@@ -333,6 +348,7 @@ export default {
             comments: [], // 해당 게시글에 대한 댓글
             writedComment: null, // 사용자가 작성중인 댓글
             likeBoards: [],// 사용자가 좋아요 누른 게시글
+            isVisitor: true, // 본인이 아닌 방문자 유무 파악
         };
     },
     methods: {
@@ -364,7 +380,7 @@ export default {
         updateLikeBoards(articleNo, likeCnt) {
             http
                 .put(`/user/updateLike`, {
-                    userId: this.userInfos.userId,
+                    userId: this.userInfo.userId,
                     likeBoards: JSON.stringify(this.likeBoards),
                     likeCnt: likeCnt,
                     articleNo: articleNo,

@@ -146,9 +146,11 @@
             <b-avatar size="40">
               <img :src="userInfo.profileImg" alt="Profile" />
             </b-avatar>
-            <h4 style="display: inline-block; vertical-align: middle; margin-left: 10px;font-family: 'Jua', sans-serif;">
-              {{ pickedArticle.userId }}
-            </h4>
+            <router-link :to="{ name: 'Profile', params: { userId: pickedArticle.userId }}">
+              <h4 style="display: inline-block; vertical-align: middle; margin-left: 10px;font-family: 'Jua', sans-serif;">
+                {{ pickedArticle.userId }}
+              </h4>
+            </router-link>
           </div>
 
           <!-- 만약 사진을 올린경우-->
