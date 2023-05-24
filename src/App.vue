@@ -1,14 +1,16 @@
 <template>
   <div id="app">
     <navi-bar />
-    <router-view class="contents_"/>
-    <footer-bar/>
+    <div class="contentWrapper">
+      <router-view class="contents_" />
+    </div>
+    <footer-bar />
   </div>
 </template>
 
 <script>
 import NaviBar from "@/components/layout/HeaderNaviBar.vue";
-import FooterBar from "@/components/layout/Footer.vue"
+import FooterBar from "@/components/layout/Footer.vue";
 export default {
   name: "App",
   components: {
@@ -19,15 +21,20 @@ export default {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
-  #app {
-      font-family: 'Jua', sans-serif;
-      margin: 0px;
-      height: 100%;
-  }
-  .contents_{
-    height: 100%;
-  }
+@import url("https://fonts.googleapis.com/css2?family=Jua&display=swap");
+#app {
+  font-family: "Jua", sans-serif;
+  margin: 0px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.contentWrapper {
+  flex: 1;
+}
+.contents_ {
+  height: 100%;
+}
 /* #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -52,6 +59,4 @@ a:hover {
   text-decoration: none;
   font-weight: bold;
 }
-
-
 </style>

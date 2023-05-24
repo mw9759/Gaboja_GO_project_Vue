@@ -2,7 +2,7 @@
   <div class="custom-div">
     <b-navbar toggleable="lg" type="dark" class="custom-nav container">
       <b-navbar-brand href="#">
-        <router-link to="/"> 가보자GO! </router-link>
+        <router-link to="/"> <span style="color: blue"> 가보자GO!</span> </router-link>
       </b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse" style="background-color: #007bff"></b-navbar-toggle>
@@ -16,7 +16,7 @@
           >
           <b-nav-item href="#"
             ><router-link :to="{ name: 'adminboardlist' }" class="link"
-              ><b-icon icon="journal" font-scale="1.5"></b-icon> 공지사항</router-link
+              ><b-icon icon="megaphone" font-scale="1.5"></b-icon> 공지사항</router-link
             ></b-nav-item
           >
           <b-nav-item href="#"
@@ -31,12 +31,12 @@
           >
           <b-nav-item href="#"
             ><router-link :to="{ name: 'tripsearch' }" class="link"
-              ><b-icon icon="truck" font-scale="1.5"></b-icon> 여행정보</router-link
+              ><b-icon icon="map" font-scale="1.5"></b-icon> 여행정보</router-link
             ></b-nav-item
           >
           <b-nav-item href="#"
             ><router-link :to="{ name: 'travelplan' }" class="link"
-              ><b-icon icon="truck" font-scale="1.5"></b-icon> 여행계획</router-link
+              ><b-icon icon="pin" font-scale="1.5"></b-icon> 여행계획</router-link
             ></b-nav-item
           >
         </b-navbar-nav>
@@ -46,18 +46,17 @@
           <b-nav-item class="align-self-center">
             <!--<b-avatar variant="primary" v-text="userInfo.userId.charAt(0).toUpperCase()">
             </b-avatar>-->
-            <b-avatar size="50">
-              <img :src="userInfo.profileImg" alt="Profile" />
-            </b-avatar>
-            {{ userInfo.userName }}({{ userInfo.userId }})님 환영합니다.
-          </b-nav-item>
-          <b-nav-item class="align-self-center">
-            <router-link :to="{ name: 'Profile' }" class="link align-self-center"
-              >내정보보기</router-link
-            >
+            <router-link :to="{ name: 'Profile' }" class="link align-self-center">
+              <b-avatar size="35">
+                <img :src="userInfo.profileImg" alt="Profile" />
+              </b-avatar>
+              <span style="color: gray; vertical-align: middle">
+                {{ userInfo.userName }}({{ userInfo.userId }})님 환영합니다.
+              </span>
+            </router-link>
           </b-nav-item>
           <b-nav-item class="align-self-center link" @click.prevent="onClickLogout"
-            >로그아웃</b-nav-item
+            ><span style="color: red">로그아웃</span></b-nav-item
           >
         </b-navbar-nav>
 
@@ -98,9 +97,7 @@ export default {
     ...mapState(memberStore, ["isLogin", "userInfo"]),
     ...mapGetters(["checkUserInfo"]),
   },
-  watch: {
-    
-  },
+  watch: {},
   methods: {
     ...mapActions(memberStore, ["userLogout"]),
 
@@ -127,6 +124,6 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 a {
-  color: #007bff !important;
+  color: black !important;
 }
 </style>

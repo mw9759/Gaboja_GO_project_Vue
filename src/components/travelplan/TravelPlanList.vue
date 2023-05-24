@@ -6,7 +6,7 @@
         v-for="trip in trips"
         :key="trip"
         class="plan p-3 m-3 d-flex"
-        style="background-color: lightskyblue; justify-content: space-between"
+        style="background-color: white; justify-content: space-between"
       >
         <div>{{ trip }}</div>
         <div>
@@ -17,7 +17,7 @@
         </div>
       </div>
       <!-- 추가버튼 -->
-      <b-button variant="outline-success" class="mt-2" v-b-modal.modal-append>추가</b-button>
+      <b-button variant="outline-success" class="m-3" v-b-modal.modal-append>추가</b-button>
     </div>
 
     <!-- modal -->
@@ -140,7 +140,6 @@ export default {
   margin-left: 10%;
   margin-right: 10%;
   padding: 3px;
-  background-color: lightpink;
 }
 
 .plan {
