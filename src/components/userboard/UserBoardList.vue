@@ -591,11 +591,11 @@ Flexbox and floats are used as a fallback so that browsers which don't support g
   font-size: 10px;
 }
 
-*,
+/* *,
 *::before,
 *::after {
   box-sizing: border-box;
-}
+} */
 
 body {
   min-height: 100vh;
