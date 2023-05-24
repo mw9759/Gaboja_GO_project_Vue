@@ -177,7 +177,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 /* 입력창 부분 */
 
 #feedback-page {

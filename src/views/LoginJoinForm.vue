@@ -547,9 +547,7 @@ export default {
 <style scoped>
 /* 로그인&회원가입창 */
 
-* {
-  box-sizing: border-box;
-}
+
 
 body {
   font-family: "Montserrat", sans-serif;

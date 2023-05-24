@@ -59,4 +59,7 @@ a:hover {
   text-decoration: none;
   font-weight: bold;
 }
+* {
+  box-sizing: content-box;
+}
 </style>
