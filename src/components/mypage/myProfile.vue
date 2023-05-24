@@ -5,13 +5,13 @@
                 <div class="profile">
                     <div class="profile-image">
                         <label for="upload_imgs">
-                            <img class="progileImg" v-if="blobfile" :src="blobfile"
+                            <img class="progileImg" v-if="blobfile" :src="blobfile" alt="">
+                            <img class="progileImg" v-else
+                                src="https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg"
                                 alt="">
-                            <img class="progileImg" v-else src="https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg"
-                            alt="">
                         </label>
-                            <input class="show-for-sr" type="file" style="display: none;" id="upload_imgs"
-                            name="upload_imgs[]" multiple v-on:change="previewImgs" />
+                        <input class="show-for-sr" type="file" style="display: none;" id="upload_imgs" name="upload_imgs[]"
+                            multiple v-on:change="previewImgs" />
                     </div>
 
                     <div class="profile-user-settings">
@@ -40,9 +40,10 @@
 
                     <div class="profile-bio">
 
-                        <p><span class="profile-real-name">{{ userInfos.userName }}</span> {{userInfos.slogun}}</p>
-                        <p><span class="profile-real-name">Email : </span> {{ userInfos.emailId }}@{{ userInfos.emailDomain }}</p>
-                        <p style="font-size: 10px; color: #333;">@since {{userInfos.joinDate}}</p>
+                        <p><span class="profile-real-name">{{ userInfos.userName }}</span> {{ userInfos.slogun }}</p>
+                        <p><span class="profile-real-name">Email : </span> {{ userInfos.emailId }}@{{ userInfos.emailDomain
+                        }}</p>
+                        <p style="font-size: 10px; color: #333;">@since {{ userInfos.joinDate }}</p>
                     </div>
 
                 </div>
@@ -114,8 +115,12 @@
                     <div class="gallery-item-info">
 
                         <ul>
-                            <li class="gallery-item-likes"><b-icon icon="heart" font-scale="0.8"></b-icon> 89</li>
-                            <li class="gallery-item-likes"><b-icon icon="chat" font-scale="0.8"></b-icon> 5</li>
+                            <li v-if="isLike(article.articleNo)" class="gallery-item-likes"><b-icon icon="heart-fill"
+                                    font-scale="0.8"></b-icon>{{ article.likeCnt }}</li>
+                            <li v-else class="gallery-item-likes"><b-icon icon="heart" font-scale="0.8"></b-icon>{{
+                                article.likeCnt }}</li>
+                            <li class="gallery-item-likes"><b-icon icon="chat" font-scale="0.8"></b-icon> {{
+                                article.commentCnt }}</li>
                             <li class="gallery-item-comments"><b-icon icon="eye" font-scale="0.8"></b-icon> {{ article.hit
                             }}</li>
                         </ul>
@@ -124,10 +129,14 @@
                 </div>
             </div>
             <div>
-                <b-modal id="modal-center" centered hide-header hide-footer v-if="pickedArticle" size="xl">
-                    <div>
-                        <b-icon icon="person-fill" font-scale="1.5"></b-icon>
-                        <h4 style="display: inline-block; font-family: 'Jua', sans-serif;">{{ pickedArticle.userId }}</h4>
+                <b-modal id="modal-center" centered hide-header scrollable hide-footer v-if="pickedArticle" size="xl">
+                    <div style="margin-bottom: 10px">
+                        <b-avatar size="40">
+                            <img :src="userInfos.profileImg" alt="Profile" />
+                        </b-avatar>
+                        <h4
+                            style="display: inline-block; vertical-align: middle; margin-left: 10px;font-family: 'Jua', sans-serif;">
+                            {{ pickedArticle.userId }}</h4>
                     </div>
 
                     <!-- 만약 사진을 올린경우-->
@@ -165,17 +174,24 @@
                             <div class="contentIn">{{ pickedArticle.content }}</div>
                             <div class="modal-item">
                                 <ul>
-                                    <li class="gallery-item-likes"><b-icon icon="heart" font-scale="0.8"></b-icon> 89</li>
-                                    <li class="gallery-item-likes"><b-icon icon="chat" font-scale="0.8"></b-icon> 5</li>
+                                    <li v-if="isLike(pickedArticle.articleNo)" class="gallery-item-likes">
+                                        <b-icon style="cursor: pointer;" icon="heart-fill" font-scale="0.8" @click="clickHeart(pickedArticle.articleNo, pickedArticle.likeCnt)"></b-icon> {{ pickedArticle.likeCnt }}
+                                    </li>
+                                    <li v-else class="gallery-item-likes">
+                                        <b-icon style="cursor: pointer;" icon="heart" font-scale="0.8" @click="clickHeart(pickedArticle.articleNo, pickedArticle.likeCnt)"></b-icon> {{ pickedArticle.likeCnt }}
+                                    </li>
+
+                                    <li class="gallery-item-likes"><b-icon icon="chat" font-scale="0.8"></b-icon> {{
+                                        comments.length }}</li>
                                     <li class="gallery-item-comments"><b-icon icon="eye" font-scale="0.8"></b-icon> {{
                                         pickedArticle.hit }}</li>
                                 </ul>
                             </div>
                             <span v-if="pickedArticle.userId == userInfos.userId" style="padding-top: 10px;
-                                    text-align: right;
-                                    display: inline-block;
-                                    width: 100%;
-                                    text-decoration: none;">
+                                                    text-align: right;
+                                                    display: inline-block;
+                                                    width: 100%;
+                                                    text-decoration: none;">
                                 <router-link class="link modal_Atag_style" :to="{
                                     name: 'userboardmodify', query: {
                                         article: pickedArticle,
@@ -193,6 +209,81 @@
                         </div>
                         <div>
 
+                        </div>
+                    </div>
+
+                    <!-- 댓글부분 -->
+                    <div class="comments">
+                        <h2 class="comments_title">
+                            댓글 <span style="font-size: medium; vertical-align: middle;">{{ comments.length }}</span>
+                        </h2>
+                        <div style="border-bottom: 1px solid #a7a9ac; padding-bottom: 0.5rem">
+                            <b-avatar size="50">
+                                <img :src="userInfo.profileImg" alt="Profile" />
+                            </b-avatar>
+                            <input type="text" class="comments_input" placeholder="댓글 추가...." v-model="writedComment" />
+                            <b-button size="sm" class="mb-2" style="
+                                            margin-left: 5px;
+                                            padding: 2%;
+                                            width: 10%;
+                                            margin-top: 4px;
+                                            background-color: #adbbd5;
+                                            border: none;
+                                            border-radius: 20px;
+                                            " @click="uploadComment(pickedArticle.articleNo)">
+                                <b-icon icon="arrow-return-left" aria-hidden="true"></b-icon>
+                            </b-button>
+                        </div>
+
+                        <div style="margin-top: 1rem" v-for="comment in comments" :key="comment.commentNo">
+                            <b-avatar size="50">
+                                <img :src="comment.profileImg" alt="Profile" />
+                            </b-avatar>
+                            <span style="vertical-align: middle; margin-left: 8px">
+                                <span style="color: #19c653" v-if="userInfo.userId == comment.userId">내가작성한 글({{
+                                    comment.userId
+                                }})<b-icon icon="emoji-smile" aria-hidden="true"></b-icon></span>
+                                <span v-else>{{ comment.userId }}</span>
+                                <b-icon icon="dot" aria-hidden="true"></b-icon>
+                                <span style="font-size: 0.8rem; color: #a7a9ac;">
+                                    {{ comment.registerTime }}
+                                </span>
+                                <span v-if="comment.isModify == 1" style="background-color: #7485F0;
+                                                                    padding: 6px;
+                                                                     color: white;
+                                                                    margin-right: 6px;
+                                                                          border-radius: 5px;">수정됨</span>
+                                <span v-if="comment.userId == pickedArticle.userId" style="background-color: #FA4245;
+                                                                          padding: 6px;
+                                                                          color: white;
+                                                                          border-radius: 5px;">작성자</span>
+                            </span>
+
+                            <input v-if="comment.userId == userInfo.userId" type="text" class="commentIn"
+                                v-model="comment.content">
+                            <input v-else type="text" readonly class="commentIn" v-model="comment.content">
+
+                            <div class="comment-item">
+                                <ul style="display: inline-block;">
+                                    <li class="gallery-item-likes c-li">
+                                        <b-icon icon="heart" font-scale="0.8"></b-icon> 0
+                                    </li>
+                                    <li class="gallery-item-likes c-li">
+                                        <b-icon icon="chat" font-scale="0.8"></b-icon> 0
+                                    </li>
+                                </ul>
+                                <!-- 본인 댓글일때 수정 삭제 버튼 -->
+                                <span v-if="comment.userId == userInfo.userId">
+                                    <a class="modal_Atag_style" @click="modifyComment(comment)">
+                                        <span>수정하기</span>
+                                    </a>
+                                    <span class="modal_Atag_style"> | </span>
+                                    <a class="modal_Atag_style"
+                                        @click="deleteComment(comment.commentNo, comment.articleNo)">
+                                        <span>삭제하기</span>
+                                    </a>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </b-modal>
@@ -213,19 +304,17 @@ export default {
     },
     computed: {
         ...mapState("memberStore", ["isLogin", "userInfo"]),
-
     },
 
     created() {
+        let token = sessionStorage.getItem("access-token");
+        this.getUserInfo(token);
         this.userInfos = this.$store.state.memberStore.userInfo;
-        http
-            .get(`/user/mywrites/${this.userInfos.userId}`)
-            .then((response) => {
-                this.articles = response.data;
-                this.posts = this.articles.length;
-                this.myimgs();
-            });
+        this.search();
         this.blobfile = this.userInfos.profileImg;
+        if (JSON.parse(this.userInfo.likeBoards)) {
+            this.likeBoards = JSON.parse(this.userInfo.likeBoards);
+        }
     },
 
     data() {
@@ -241,10 +330,62 @@ export default {
             pickedArticlesImg: [], // 해당 리스트에 업로드된 이미지들
             files: [],
             blobfile: null,
+            comments: [], // 해당 게시글에 대한 댓글
+            writedComment: null, // 사용자가 작성중인 댓글
+            likeBoards: [],// 사용자가 좋아요 누른 게시글
         };
     },
     methods: {
         ...mapActions(memberStore, ["userLogout", "getUserInfo"]),
+        //좋아요 눌렀는지 확인
+        isLike(articleNo) {
+            for (var i = 0; i < this.likeBoards.length; i++) {
+                if (articleNo == this.likeBoards[i]) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        // 좋아요 역변
+        clickHeart(articleNo, likeCnt) {
+            for (var i = 0; i < this.likeBoards.length; i++) {
+                if (articleNo == this.likeBoards[i]) {
+                    this.likeBoards.splice(i, 1);
+                    this.pickedArticle.likeCnt -= 1;
+                    this.updateLikeBoards(articleNo, likeCnt - 1);// 좋아요 정보 업데이트 
+                    return;
+                }
+            }
+            this.likeBoards.push(articleNo);
+            this.pickedArticle.likeCnt += 1;
+            this.updateLikeBoards(articleNo, likeCnt + 1);// 좋아요 정보 업데이트 
+        },
+        // 좋아요 정보 업데이트
+        updateLikeBoards(articleNo, likeCnt) {
+            http
+                .put(`/user/updateLike`, {
+                    userId: this.userInfos.userId,
+                    likeBoards: JSON.stringify(this.likeBoards),
+                    likeCnt: likeCnt,
+                    articleNo: articleNo,
+                })
+                .then((response) => {
+                    if (response.data == "success") {
+                        this.search();
+                    }
+                });
+        },
+
+        //게시글 불러오기
+        search() {
+            http
+                .get(`/user/mywrites/${this.userInfos.userId}`)
+                .then((response) => {
+                    this.articles = response.data;
+                    this.posts = this.articles.length;
+                    this.myimgs();
+                });
+        },
         //회원 프사
         previewImgs(event) {
             this.files = Array.from(event.target.files);
@@ -264,12 +405,12 @@ export default {
                 icon: "info",
                 buttons: true,
                 dangerMode: true,
-                })
+            })
                 .then((willDelete) => {
                     if (willDelete) {
                         this.updateProfile();
                         swal("변경완료!", {
-                        icon: "success",
+                            icon: "success",
                         });
                         let token = sessionStorage.getItem("access-token");
                         this.getUserInfo(token);
@@ -283,7 +424,7 @@ export default {
                             this.blobfile = null;
                         }
                     }
-                    });
+                });
 
         },
         async updateProfile() {
@@ -295,14 +436,14 @@ export default {
                     if (response.data == "success") {
                         return true;
                     }
-            })
+                })
         },
         async myimgs() {
             await http
-            .get(`/user/myimgs/${this.userInfos.userId}`)
-            .then((response) => {
-                this.imgs = response.data;
-            });
+                .get(`/user/myimgs/${this.userInfos.userId}`)
+                .then((response) => {
+                    this.imgs = response.data;
+                });
         },
         mvModal(pickedArticle) {
             //모달로 데이터 넘겨주기.
@@ -313,10 +454,59 @@ export default {
                     this.pickedArticlesImg.push(this.imgs[i].imgBlob);
                 }
             }
-            //모달로 이동한경우 조회수 증가시키기
-            
+            //모달로 이동한 경우 해당 게시글 댓글 불러오기
+            this.getComments(pickedArticle.articleNo);
+        },
+        //해당 게시글 댓글 불러오기
+        getComments(articleNo) {
+            http
+                .get(`/userboard/getComments/${articleNo}`)
+                .then((response) => {
+                    this.comments = response.data;
+                });
+        },
+        //해당 게시글 댓글 작성
+        uploadComment(articleNo) {
+            http
+                .post(`/userboard/writeComment`, {
+                    articleNo: articleNo,
+                    userId: this.userInfo.userId,
+                    content: this.writedComment
+                })
+                .then((response) => {
+                    if (response.data == "success") {
+                        this.getComments(articleNo);
+                        this.writedComment = null;
+                        this.search();
+                    }
+                });
+
+        },
+        // 댓글 삭제
+        deleteComment(commentNo, articleNo) {
+            http
+                .post("/userboard/deleteComment", {
+                    commentNo: commentNo,
+                    articleNo: articleNo,
+                })
+                .then((response) => {
+                    if (response.data == "success") {
+                        this.getComments(articleNo);
+                        this.search();
+                    }
+                });
         },
 
+        //댓글 수정
+        modifyComment(comment) {
+            http
+                .put("/userboard/modifyComment", comment)
+                .then((response) => {
+                    if (response.data == "success") {
+                        this.getComments(comment.articleNo);
+                    }
+                });
+        },
         onSlideStart() {
             this.sliding = true
         },
@@ -344,32 +534,32 @@ export default {
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
-                })
+            })
                 .then((willDelete) => {
                     if (willDelete) {
                         this.deleteUserIngo();
                         swal("계정이 삭제되었습니다!", {
-                        icon: "success",
+                            icon: "success",
                         });
                     } else {
                         swal("삭제가 취소되었습니다!");
                     }
-                    });
+                });
         },
 
         //회원탈퇴
         deleteUserIngo() {
             http.delete(`/user/delete/${this.userInfos.userId}`)
-            .then((response) => {
-                if (response.data == "success") {
-                    console.log(this.userInfo.userId);
-                    this.userLogout(this.userInfo.userId); // 임포트한 로그아웃 매서드 호출. 인자값: 로그인한 유저의 아이디.
-                    sessionStorage.removeItem("access-token"); //저장된 토큰 없애기
-                    sessionStorage.removeItem("refresh-token"); //저장된 토큰 없애기
-                    if (this.$route.path != "/") this.$router.push({ name: "home" });
-                    return true;
-                }   
-            });
+                .then((response) => {
+                    if (response.data == "success") {
+                        console.log(this.userInfo.userId);
+                        this.userLogout(this.userInfo.userId); // 임포트한 로그아웃 매서드 호출. 인자값: 로그인한 유저의 아이디.
+                        sessionStorage.removeItem("access-token"); //저장된 토큰 없애기
+                        sessionStorage.removeItem("refresh-token"); //저장된 토큰 없애기
+                        if (this.$route.path != "/") this.$router.push({ name: "home" });
+                        return true;
+                    }
+                });
         }
     },
 };
@@ -810,11 +1000,56 @@ Remove or comment-out the code block below to see how the browser will fall-back
     text-decoration: none;
     color: #a7a9ac !important;
     font-size: small;
+    cursor: pointer;
 }
 
 /**프로필사진 */
-.progileImg{
+.progileImg {
     width: 200px;
     height: 200px;
 }
-</style>
+
+/** 댓글 창 */
+.comments {
+    width: 84%;
+    font-family: "Jua", sans-serif;
+    margin-left: 7%;
+    margin-top: 3%;
+    border-top: 1px solid #a7a9ac;
+}
+
+.comments_title {
+    width: 100%;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #a7a9ac;
+    padding: 20px;
+}
+
+.comments_input {
+    margin-left: 15px;
+    border: none;
+    background-color: #f4f6fb;
+    width: 75%;
+    padding: 2%;
+    border-radius: 10px;
+}
+
+.comment-item {
+    width: 100%;
+    height: 100%;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.commentIn {
+    padding: 5%;
+    width: 100%;
+    height: fit-content;
+    min-height: 100px;
+    border: none;
+}
+
+.c-li {
+    display: inline-block;
+    font-size: 1.2rem;
+}</style>
