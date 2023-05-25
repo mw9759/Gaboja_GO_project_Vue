@@ -400,6 +400,12 @@ Vue.use(BootstrapVueIcons);
 
 export default {
   name: "TravelPlanVeiw",
+  created() {
+    if (JSON.parse(this.userInfo.likeBoards)) {
+      alert(11);
+            this.likeBoards = JSON.parse(this.userInfo.likeBoards);
+        }
+  },
   data() {
     return {
       pickedArticle: null, // 리스트에서 클릭한 article

@@ -349,46 +349,7 @@ export default {
         // 로그인 실패 시 에러 메시지 표시
         this.login.failLogin = "로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.";
       }
-      // http
-      // 	.post(`/user/login`, {
-      // 		userid: this.login.userid,
-      // 		userpwd: this.login.userpwd,
-      // 	})
-      // 	.then(response => {
-      // 		const token = response.data['access-token']; // 토큰 가져오기.
-      // 		const loginId = response.data['loginId']; // 로그인성공 아이디
-      // 		if (token) {
-      // 			localStorage.setItem('access-token', token); // 토큰 로컬스토리지에 저장.
-      // 			localStorage.setItem('loginId', loginId);
-      // 			// 아이디 저장 여부 체크
-      // 			if (this.login.isChecked === false) {
-      // 				VueCookies.remove('userid');
-      // 			}
-      // 			else {
-      // 				VueCookies.set('userid', this.login.userid);
-      // 			}
-      // 			swal({
-      // 				title: `${this.login.userid}님 환영합니다!`,
-      // 				text: "메인 화면으로 이동합니다.",
-      // 				icon: "success",
-      // 				button: "확인",
-      // 			}).then((value) => {
-      // 				// 로그인 성공 시 페이지 이동
-      // 				this.$router.push({ name: "home" });
-      // 				console.log(value);
-      // 			});
-      // 		} else {
-      // 			// 로그인 실패 시 에러 메시지 표시
-      // 			this.login.failLogin = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.';
-      // 		}
-      // 	})
-      // 	.catch(error => {
-      // swal({
-      // 	title: `ㅈ버그발생${error}`,
-      // 	icon: "error",
-      // 	button: "확인",
-      // });
-      // 	});
+    
     },
     // 자바스크립트 이벤트
     // 로그인폼->회원가입폼

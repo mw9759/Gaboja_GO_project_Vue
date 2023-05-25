@@ -100,9 +100,7 @@
             <h3>{{ list.title }}</h3>
             <h3>{{ list.addr1 }}</h3>
           </div>
-          <div class="img-button">
-            <b-button variant="primary" @click="addPlan(list)">ADD</b-button>
-          </div>
+          
           <!-- </div> -->
           <div class="gallery-item-info">
             <ul>
@@ -337,7 +335,7 @@ import { mapState } from "vuex";
 import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
-
+import swal from "sweetalert";
 Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);
 Vue.use(Vuebar);
@@ -350,7 +348,7 @@ export default {
       //pickedArticlesImg: [], // 해당 리스트에 업로드된 이미지들
       comments: [], // 해당 게시글에 대한 댓글
       writedComment: null, // 사용자가 작성중인 댓글
-      likeBoards: [], // 사용자가 좋아요 누른 게시글
+      likeAttractions: [], // 사용자가 좋아요 누른 게시글
       formData: {
         lati: "",
         long: "",
@@ -388,6 +386,13 @@ export default {
       modalName: "",
     };
   },
+
+  created() {
+    if (JSON.parse(this.userInfo.likeAttarctions)) {
+            this.likeAttractions = JSON.parse(this.userInfo.likeAttarctions);
+    }
+  },
+
   computed: {
     ...mapState("memberStore", ["isLogin", "userInfo"]),
     lists() {
@@ -425,8 +430,8 @@ export default {
   methods: {
     //좋아요 눌렀는지 확인
     isLike(contentId) {
-      for (var i = 0; i < this.likeBoards.length; i++) {
-        if (contentId == this.likeBoards[i]) {
+      for (var i = 0; i < this.likeAttractions.length; i++) {
+        if (contentId == this.likeAttractions[i]) {
           return true;
         }
       }
@@ -434,23 +439,25 @@ export default {
     },
     // 좋아요 역변
     clickHeart(contentId, like) {
-      for (var i = 0; i < this.likeBoards.length; i++) {
-        if (contentId == this.likeBoards[i]) {
-          this.likeBoards.splice(i, 1);
+      for (var i = 0; i < this.likeAttractions.length; i++) {
+        if (contentId == this.likeAttractions[i]) {
+          this.likeAttractions.splice(i, 1);
           this.pickedArticle.like--;
           this.updateLikeBoards(contentId, like - 1); // 좋아요 정보 업데이트
           return;
         }
       }
-      this.likeBoards.push(contentId);
+      this.likeAttractions.push(contentId);
+      alert(this.likeAttractions);
       this.pickedArticle.like += 1;
       this.updateLikeBoards(contentId, like + 1); // 좋아요 정보 업데이트
     },
     // 좋아요 정보 업데이트
     updateLikeBoards(contentId, like) {
+      alert(this.userInfo.userId);
       http
         .put(`/travelplan/updateLike`, {
-          userId: this.userId,
+          userId: this.userInfo.userId,
           likeAttractions: JSON.stringify(this.likeAttractions),
           like: like,
           contentId: contentId,
@@ -469,7 +476,6 @@ export default {
     },
     //해당 게시글 댓글 작성
     uploadComment(contentId) {
-      console.log(contentId);
       http
         .post(`/travelplan/writeComment`, {
           contentId: contentId,
@@ -505,9 +511,20 @@ export default {
       });
     },
     mvModal(pickedArticle) {
-      this.pickedArticle = pickedArticle;
-      //모달로 이동한 경우 해당 게시글 댓글 불러오기
-      this.getComments(pickedArticle.contentId);
+      if (this.userInfo) {
+        this.pickedArticle = pickedArticle;
+        //모달로 이동한 경우 해당 게시글 댓글 불러오기
+        this.getComments(pickedArticle.contentId);
+      }
+      else {
+        swal({
+          title: "로그인 정보가 없습니다.",
+          text: "로그인 후 이용해 주세요!",
+          icon: "error",
+          button: "확인",
+        });
+        this.$router.push({ name: "login_join" });
+      }
     },
     noImage(e) {
       e.target.src = require("@/assets/icon/noimage.png");

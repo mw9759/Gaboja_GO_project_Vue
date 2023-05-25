@@ -149,7 +149,7 @@
           size="xl"
         >
           <div style="margin-bottom: 10px">
-            <!-- <img :src="userInfo.profileImg" alt="Profile" style="width: 35px; height: 35px; border-radius: 50%;display: inline-block;"/> -->
+            <img :src="pickedArticle.profileImg" alt="Profile" style="width: 35px; height: 35px; border-radius: 50%;display: inline-block;"/>
             <router-link :to="{ name: 'Profile', params: { userId: pickedArticle.userId } }">
               <h4
                 style="
