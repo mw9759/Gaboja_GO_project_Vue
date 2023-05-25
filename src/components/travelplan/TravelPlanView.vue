@@ -151,19 +151,17 @@
       </table> -->
 
       <div class="gallery">
-        <div
-          v-for="list in lists"
-          :key="list.contentId"
-          class="gallery-item"
-          tabindex="0"
-          v-b-modal.modal-center
-          @click="mvModal(list)"
-        >
+        <div v-for="list in lists" :key="list.contentId" class="gallery-item" tabindex="0">
+          <!-- v-b-modal.modal-center
+          @click="mvModal(list)" -->
           <!-- <div class="img-wrap"> -->
           <img :src="list.firstImage" class="gallery-image" alt="" @error="noImage" />
-          <div class="img-text">
+          <div class="img-text" v-b-modal.modal-center @click="mvModal(list)">
             <h3>{{ list.title }}</h3>
             <h3>{{ list.addr1 }}</h3>
+          </div>
+          <div class="img-button">
+            <b-button variant="primary" @click="addPlan(list)">ADD</b-button>
           </div>
           <!-- </div> -->
           <div class="gallery-item-info">
@@ -282,7 +280,7 @@
         </div>
       </b-carousel>
 
-      <!-- 여기 넣어라 -->
+      <!-- 내용 -->
       <div class="articleInfo">
         <div class="articleContent">
           <span>{{ pickedArticle.registerTime }}</span>
@@ -317,36 +315,7 @@
               </li>
             </ul>
           </div>
-          <!-- <span
-            v-if="pickedArticle.userId == userId"
-            style="
-              padding-top: 10px;
-              text-align: right;
-              display: inline-block;
-              width: 100%;
-              text-decoration: none;
-            "
-          >
-            <router-link
-              class="link modal_Atag_style"
-              :to="{
-                name: 'userboardmodify',
-                query: {
-                  article: pickedArticle,
-                  imgs: pickedArticlesImg,
-                  totalFiles: pickedArticlesImg.length,
-                },
-              }"
-            >
-              <span>수정하기</span>
-            </router-link>
-            <span class="modal_Atag_style"> | </span>
-            <a href="" class="modal_Atag_style" @click="deleteArticle(pickedArticle.articleNo)"
-              ><span>삭제하기</span></a
-            >
-          </span> -->
         </div>
-        <div></div>
       </div>
       <!-- 댓글 창 -->
       <div class="comments">
@@ -376,7 +345,7 @@
               border: none;
               border-radius: 20px;
             "
-            @click="uploadComment(pickedArticle.articleNo)"
+            @click="uploadComment(pickedArticle.contentId)"
           >
             <b-icon icon="arrow-return-left" aria-hidden="true"></b-icon>
           </b-button>
@@ -387,7 +356,7 @@
             <img :src="comment.profileImg" alt="Profile" />
           </b-avatar>
           <span style="vertical-align: middle; margin-left: 8px">
-            <span style="color: #19c653" v-if="userId == comment.userId"
+            <span style="color: #19c653" v-if="userInfo.userId == comment.userId"
               >내가작성한 글({{ comment.userId }})<b-icon
                 icon="emoji-smile"
                 aria-hidden="true"
@@ -408,11 +377,6 @@
                 border-radius: 5px;
               "
               >수정됨</span
-            >
-            <span
-              v-if="comment.userId == pickedArticle.userId"
-              style="background-color: #fa4245; padding: 6px; color: white; border-radius: 5px"
-              >작성자</span
             >
           </span>
 
@@ -440,7 +404,7 @@
               <span class="modal_Atag_style"> | </span>
               <a
                 class="modal_Atag_style"
-                @click="deleteComment(comment.commentNo, comment.articleNo)"
+                @click="deleteComment(comment.commentId, comment.contentId)"
               >
                 <span>삭제하기</span>
               </a>
@@ -590,18 +554,18 @@ export default {
       return false;
     },
     // 좋아요 역변
-    clickHeart(articleNo, likeCnt) {
+    clickHeart(contentId, like) {
       for (var i = 0; i < this.likeBoards.length; i++) {
-        if (articleNo == this.likeBoards[i]) {
+        if (contentId == this.likeBoards[i]) {
           this.likeBoards.splice(i, 1);
-          this.pickedArticle.likeCnt -= 1;
-          this.updateLikeBoards(articleNo, likeCnt - 1); // 좋아요 정보 업데이트
+          this.pickedArticle.like--;
+          this.updateLikeBoards(contentId, like - 1); // 좋아요 정보 업데이트
           return;
         }
       }
-      this.likeBoards.push(articleNo);
-      this.pickedArticle.likeCnt += 1;
-      this.updateLikeBoards(articleNo, likeCnt + 1); // 좋아요 정보 업데이트
+      this.likeBoards.push(contentId);
+      this.pickedArticle.like += 1;
+      this.updateLikeBoards(contentId, like + 1); // 좋아요 정보 업데이트
     },
     // 좋아요 정보 업데이트
     updateLikeBoards(contentId, like) {
@@ -614,7 +578,7 @@ export default {
         })
         .then((response) => {
           if (response.data == "success") {
-            this.search();
+            //this.search();
           }
         });
     },
@@ -625,40 +589,39 @@ export default {
       });
     },
     //해당 게시글 댓글 작성
-    uploadComment(articleNo) {
+    uploadComment(contentId) {
+      console.log(contentId);
       http
         .post(`/travelplan/writeComment`, {
-          articleNo: articleNo,
-          userId: this.userId,
+          contentId: contentId,
+          userId: this.userInfo.userId,
           content: this.writedComment,
         })
         .then((response) => {
           if (response.data == "success") {
-            this.getComments(articleNo);
+            this.getComments(contentId);
             this.writedComment = null;
-            this.search();
+            this.pickedArticle.commentNum++;
           }
         });
     },
     // 댓글 삭제
-    deleteComment(commentNo, articleNo) {
-      http
-        .post("/userboard/deleteComment", {
-          commentNo: commentNo,
-          articleNo: articleNo,
-        })
-        .then((response) => {
-          if (response.data == "success") {
-            this.getComments(articleNo);
-            this.search();
-          }
-        });
+    deleteComment(commentId, contentId) {
+      console.log(commentId);
+      console.log(contentId);
+      http.delete(`/travelplan/deleteComment/${commentId}`).then((response) => {
+        if (response.data == "success") {
+          this.getComments(contentId);
+          this.pickedArticle.commentNum--;
+        }
+      });
     },
     //댓글 수정
     modifyComment(comment) {
-      http.put("/userboard/modifyComment", comment).then((response) => {
+      console.log(comment);
+      http.put("/travelplan/modifyComment", comment).then((response) => {
         if (response.data == "success") {
-          this.getComments(comment.articleNo);
+          this.getComments(comment.contentId);
         }
       });
     },
@@ -1077,6 +1040,24 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   text-shadow: -1px 0px black, 0px 1px black, 1px 0px black, 0px -1px black;
+  /* 맨위에 올려서 동작 가능하도록 한다. */
+  z-index: 1;
+  cursor: pointer;
+}
+.img-button {
+  padding: 5px 10px;
+  text-align: center;
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  transform: translate(-50%, -50%);
+  text-shadow: -1px 0px black, 0px 1px black, 1px 0px black, 0px -1px black;
+  /* 맨위에 올려서 동작 가능하도록 한다. */
+  z-index: 1;
+}
+/* 클릭한 요소의 테두리를 표시하지 않는다. */
+*:focus {
+  outline: none;
 }
 .main {
   display: flex;
@@ -1286,7 +1267,7 @@ font-awesome-icon:hover {
   flex: 1 0 22rem;
   margin: 1rem;
   color: #fff;
-  cursor: pointer;
+  /* cursor: pointer; */
 }
 
 .gallery-item:hover .gallery-item-info,

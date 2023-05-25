@@ -83,22 +83,13 @@
             style="display: inline-block; width: 25%"
             v-model="formData.searchKeyword"
           />
-          <input
-            id="btn_search"
-            class="btn btn-dark"
-            type="submit"
-            value="검색"
-          />
+          <input id="btn_search" class="btn btn-dark" type="submit" value="검색" />
         </form>
       </div>
     </section>
     <div id="map" style="width: 80%; height: 650px; margin-left: 10%"></div>
     <div class="row">
-      <table
-        id="resultTable"
-        class="table table-striped"
-        style="width: 80%; margin-left: 10%"
-      >
+      <table id="resultTable" class="table table-striped" style="width: 80%; margin-left: 10%">
         <thead style="background-color: aliceblue">
           <tr>
             <th>대표이미지</th>
@@ -160,17 +151,14 @@ export default {
     if (data) {
       this.formData = data;
     }
-        
   },
   mounted() {
     const script = document.createElement("script");
     /* global kakao */
     script.onload = () => kakao.maps.load(this.initMap);
     script.src =
-    "http://dapi.kakao.com/v2/maps/sdk.js?appkey=509e8446f54aaa4ff63503311698321b&autoload=false";
+      "http://dapi.kakao.com/v2/maps/sdk.js?appkey=509e8446f54aaa4ff63503311698321b&autoload=false";
     document.head.appendChild(script);
-    
-    
   },
   methods: {
     // 관광지 리스트 출력
