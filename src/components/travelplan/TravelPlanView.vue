@@ -119,37 +119,6 @@
     </div>
     <!-- 목록 -->
     <div class="list">
-      <!-- <table id="resultTable" class="table table-striped">
-        <thead style="background-color: aliceblue">
-          <tr>
-            <th>대표이미지</th>
-            <th>관광지명</th>
-            <th>주소</th>
-            <th style="width: 150px">현재 위치와의 거리</th>
-            <th style="display: none">위도</th>
-            <th style="display: none">경도</th>
-            <th>상세 설명</th>
-            <th>추가</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="list in lists" :key="list.contentId">
-            <td>
-              <img :src="list.firstImage" style="object-fit: cover" />
-            </td>
-            <td>{{ list.title }}</td>
-            <td>{{ list.addr1 }}</td>
-            <td>{{ list.distance }} km</td>
-            <td style="display: none">{{ list.latitude }}</td>
-            <td style="display: none">{{ list.longitude }}</td>
-            <td>{{ list.overview }}</td>
-            <td>
-              <b-button variant="primary" @click="addPlan(list)">ADD</b-button>
-            </td>
-          </tr>
-        </tbody>
-      </table> -->
-
       <div class="gallery">
         <div v-for="list in lists" :key="list.contentId" class="gallery-item" tabindex="0">
           <!-- v-b-modal.modal-center
@@ -633,6 +602,9 @@ export default {
     noImage(e) {
       e.target.src = require("@/assets/icon/noimage.png");
     },
+    /*
+      여행계획
+    */
     savePlan() {
       http
         .post("/travelplan/save", {
