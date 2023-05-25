@@ -159,16 +159,24 @@
           v-b-modal.modal-center
           @click="mvModal(list)"
         >
+          <!-- <div class="img-wrap"> -->
           <img :src="list.firstImage" class="gallery-image" alt="" @error="noImage" />
+          <div class="img-text">
+            <h3>{{ list.title }}</h3>
+            <h3>{{ list.addr1 }}</h3>
+          </div>
+          <!-- </div> -->
           <div class="gallery-item-info">
             <ul>
-              <li class="gallery-item-likes">
-                <span class="visually-hidden">Likes:</span
-                ><i class="fas fa-heart" aria-hidden="true"></i> 56
+              <li v-if="isLike(list.contentId)" class="gallery-item-likes">
+                <b-icon icon="heart-fill" font-scale="0.8"></b-icon>{{ list.like }}
               </li>
-              <li class="gallery-item-comments">
-                <span class="visually-hidden">Comments:</span
-                ><i class="fas fa-comment" aria-hidden="true"></i> 2
+              <li v-else class="gallery-item-likes">
+                <b-icon icon="heart" font-scale="0.8"></b-icon>{{ list.like }}
+              </li>
+
+              <li class="gallery-item-likes">
+                <b-icon icon="chat" font-scale="0.8"></b-icon> {{ list.commentNum }}
               </li>
             </ul>
           </div>
@@ -222,117 +230,93 @@
       v-if="pickedArticle"
       size="xl"
     >
-      <!-- <div style="margin-bottom: 10px">
-        <b-avatar size="40">
-          <img :src="userInfo.profileImg" alt="Profile" />
-        </b-avatar>
-        <router-link :to="{ name: 'Profile', params: { userId: pickedArticle.userId } }">
-          <h4
-            style="
-              display: inline-block;
-              vertical-align: middle;
-              margin-left: 10px;
-              font-family: 'Jua', sans-serif;
-            "
-          >
-            {{ pickedArticle.userId }}
-          </h4>
-        </router-link>
-      </div> -->
-
-      <img
-        :src="pickedArticle.firstImage"
-        alt=""
-        @error="noImage"
-        style="width: 1024; height: 480"
-      />
+      <!-- <img :src="pickedArticle.firstImage" alt="" @error="noImage" width="1024" height="480" /> -->
       <!-- 만약 사진을 올린경우-->
-      <!-- <b-carousel
-        v-if="pickedArticle.imgsIsExist == 'Y'"
+      <b-carousel
+        v-if="pickedArticle.firstImage !== null && pickedArticle.firstImage !== ''"
         id="cars"
-        v-model="pickedArticle.imgSlideNum"
         controls
         indicators
         background="#ababab"
-        img-width="1024"
-        img-height="480"
         style="text-shadow: 1px 1px 2px #333"
         class="modal_carousel"
-        @sliding-start="onSlideStart"
-        @sliding-end="onSlideEnd"
       >
-        <div v-for="(img, index) in pickedArticlesImg" :key="index" class="gallery-item">
+        <div class="gallery-item">
           <b-carousel-slide>
             <template #img>
-              <img :src="img" alt="Image" class="image-container" />
+              <img
+                :src="pickedArticle.firstImage"
+                alt="Image"
+                class="image-container"
+                width="100%"
+                height="480"
+              />
             </template>
           </b-carousel-slide>
         </div>
-      </b-carousel> -->
+      </b-carousel>
 
       <!-- 만약 사진을 올리지 않은 경우-->
-      <!-- <b-carousel
+      <b-carousel
         id="cars"
         v-model="pickedArticle.imgSlideNum"
         controls
         indicators
         background="#ababab"
-        img-width="1024"
-        img-height="480"
         style="text-shadow: 1px 1px 2px #333"
         class="modal_carousel"
-        @sliding-start="onSlideStart"
-        @sliding-end="onSlideEnd"
         v-else
       >
         <div class="gallery-item">
           <b-carousel-slide>
             <template #img>
               <img
-                src="https://images.unsplash.com/photo-1497445462247-4330a224fdb1?w=500&h=500&fit=crop"
+                src="@/assets/icon/noimage.png"
                 alt="Image"
                 class="image-container"
+                width="100%"
+                height="480"
               />
             </template>
           </b-carousel-slide>
         </div>
-      </b-carousel> -->
+      </b-carousel>
 
       <!-- 여기 넣어라 -->
       <div class="articleInfo">
         <div class="articleContent">
           <span>{{ pickedArticle.registerTime }}</span>
-          <!-- <h2 style="border-bottom: 1px solid #dee2e6">#{{ pickedArticle.subject }}</h2> -->
-          <!-- <div class="contentIn">{{ pickedArticle.content }}</div> -->
-          <!-- <div class="modal-item">
+          <h2 style="border-bottom: 1px solid #dee2e6">#{{ pickedArticle.title }}</h2>
+          <div class="contentIn">
+            {{ pickedArticle.addr1 }}
+            <br /><br />
+            {{ pickedArticle.overview }}
+          </div>
+          <div class="modal-item">
             <ul>
-              <li v-if="isLike(pickedArticle.articleNo)" class="gallery-item-likes">
+              <li v-if="isLike(pickedArticle.contentId)" class="gallery-item-likes">
                 <b-icon
                   style="cursor: pointer"
                   icon="heart-fill"
                   font-scale="0.8"
-                  @click="clickHeart(pickedArticle.articleNo, pickedArticle.likeCnt)"
+                  @click="clickHeart(pickedArticle.contentId, pickedArticle.like)"
                 ></b-icon>
-                {{ pickedArticle.likeCnt }}
+                {{ pickedArticle.like }}
               </li>
               <li v-else class="gallery-item-likes">
                 <b-icon
                   style="cursor: pointer"
                   icon="heart"
                   font-scale="0.8"
-                  @click="clickHeart(pickedArticle.articleNo, pickedArticle.likeCnt)"
+                  @click="clickHeart(pickedArticle.contentId, pickedArticle.like)"
                 ></b-icon>
-                {{ pickedArticle.likeCnt }}
+                {{ pickedArticle.like }}
               </li>
-
               <li class="gallery-item-likes">
-                <b-icon icon="chat" font-scale="0.8"></b-icon> {{ comments.length }}
-              </li>
-              <li class="gallery-item-comments">
-                <b-icon icon="eye" font-scale="0.8"></b-icon> {{ pickedArticle.hit }}
+                <b-icon icon="chat" font-scale="0.8"></b-icon> {{ pickedArticle.commentNum }}
               </li>
             </ul>
-          </div> -->
+          </div>
           <!-- <span
             v-if="pickedArticle.userId == userId"
             style="
@@ -365,7 +349,7 @@
         <div></div>
       </div>
       <!-- 댓글 창 -->
-      <!-- <div class="comments">
+      <div class="comments">
         <h2 class="comments_title">
           댓글
           <span style="font-size: medium; vertical-align: middle">{{ comments.length }}</span>
@@ -463,7 +447,7 @@
             </span>
           </div>
         </div>
-      </div> -->
+      </div>
     </b-modal>
   </div>
 </template>
@@ -596,11 +580,92 @@ export default {
     },
   },
   methods: {
+    //좋아요 눌렀는지 확인
+    isLike(contentId) {
+      for (var i = 0; i < this.likeBoards.length; i++) {
+        if (contentId == this.likeBoards[i]) {
+          return true;
+        }
+      }
+      return false;
+    },
+    // 좋아요 역변
+    clickHeart(articleNo, likeCnt) {
+      for (var i = 0; i < this.likeBoards.length; i++) {
+        if (articleNo == this.likeBoards[i]) {
+          this.likeBoards.splice(i, 1);
+          this.pickedArticle.likeCnt -= 1;
+          this.updateLikeBoards(articleNo, likeCnt - 1); // 좋아요 정보 업데이트
+          return;
+        }
+      }
+      this.likeBoards.push(articleNo);
+      this.pickedArticle.likeCnt += 1;
+      this.updateLikeBoards(articleNo, likeCnt + 1); // 좋아요 정보 업데이트
+    },
+    // 좋아요 정보 업데이트
+    updateLikeBoards(contentId, like) {
+      http
+        .put(`/travelplan/updateLike`, {
+          userId: this.userId,
+          likeAttractions: JSON.stringify(this.likeAttractions),
+          like: like,
+          contentId: contentId,
+        })
+        .then((response) => {
+          if (response.data == "success") {
+            this.search();
+          }
+        });
+    },
+    //해당 게시글 댓글 불러오기
+    getComments(contentId) {
+      http.get(`/travelplan/getComments/${contentId}`).then((response) => {
+        this.comments = response.data;
+      });
+    },
+    //해당 게시글 댓글 작성
+    uploadComment(articleNo) {
+      http
+        .post(`/travelplan/writeComment`, {
+          articleNo: articleNo,
+          userId: this.userId,
+          content: this.writedComment,
+        })
+        .then((response) => {
+          if (response.data == "success") {
+            this.getComments(articleNo);
+            this.writedComment = null;
+            this.search();
+          }
+        });
+    },
+    // 댓글 삭제
+    deleteComment(commentNo, articleNo) {
+      http
+        .post("/userboard/deleteComment", {
+          commentNo: commentNo,
+          articleNo: articleNo,
+        })
+        .then((response) => {
+          if (response.data == "success") {
+            this.getComments(articleNo);
+            this.search();
+          }
+        });
+    },
+    //댓글 수정
+    modifyComment(comment) {
+      http.put("/userboard/modifyComment", comment).then((response) => {
+        if (response.data == "success") {
+          this.getComments(comment.articleNo);
+        }
+      });
+    },
     mvModal(pickedArticle) {
-      console.log("!!!");
       this.pickedArticle = pickedArticle;
       //모달로 이동한 경우 해당 게시글 댓글 불러오기
-      //this.getComments(pickedArticle.articleNo);
+      this.getComments(pickedArticle.contentId);
     },
     noImage(e) {
       e.target.src = require("@/assets/icon/noimage.png");
@@ -984,6 +1049,35 @@ export default {
 </script>
 
 <style>
+/* img {
+  height: auto;
+  width: 100px;
+} */
+/* .img-wrap {
+  height: 300px;
+  width: 300px;
+  position: relative;
+} */
+.img-wrap img {
+  vertical-align: middle;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(50, 50);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  margin: auto;
+}
+.img-text {
+  padding: 5px 10px;
+  text-align: center;
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-shadow: -1px 0px black, 0px 1px black, 1px 0px black, 0px -1px black;
+}
 .main {
   display: flex;
   padding: 10px 20px 10px 20px;
@@ -1054,11 +1148,6 @@ export default {
 
 b-card {
   margin-bottom: 5px;
-}
-
-img {
-  height: auto;
-  width: 100px;
 }
 
 font-awesome-icon:hover {
@@ -1250,7 +1339,9 @@ font-awesome-icon:hover {
 @supports (display: grid) {
   .gallery {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    /* grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr; */
+    grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
     grid-gap: 2rem;
   }
   .gallery-item,
@@ -1260,7 +1351,9 @@ font-awesome-icon:hover {
   }
 }
 
-/* modal : attraction */
+/* css-modal : attraction */
+@import url("https://fonts.googleapis.com/css2?family=Jua&display=swap");
+
 .modal {
   font-family: "Jua", sans-serif;
 }
@@ -1311,5 +1404,45 @@ font-awesome-icon:hover {
   color: #a7a9ac !important;
   font-size: small;
   cursor: pointer;
+}
+
+/* 댓글 창 */
+.comments {
+  width: 84%;
+  font-family: "Jua", sans-serif;
+  margin-left: 7%;
+  margin-top: 3%;
+  border-top: 1px solid #a7a9ac;
+}
+.comments_title {
+  width: 100%;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #a7a9ac;
+  padding: 20px;
+}
+.comments_input {
+  margin-left: 15px;
+  border: none;
+  background-color: #f4f6fb;
+  width: 75%;
+  padding: 2%;
+  border-radius: 10px;
+}
+.comment-item {
+  width: 100%;
+  height: 100%;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+.commentIn {
+  padding: 5%;
+  width: 100%;
+  height: fit-content;
+  min-height: 100px;
+  border: none;
+}
+.c-li {
+  display: inline-block;
+  font-size: 1.2rem;
 }
 </style>
