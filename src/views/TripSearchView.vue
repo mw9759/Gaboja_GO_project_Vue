@@ -391,6 +391,7 @@ export default {
     if (JSON.parse(this.userInfo.likeAttarctions)) {
             this.likeAttractions = JSON.parse(this.userInfo.likeAttarctions);
     }
+    
   },
 
   computed: {
@@ -407,6 +408,10 @@ export default {
     },
   },
   mounted() {
+    const formData = this.$route.params.formData;
+    if (this.$route.params.flag == 1) {
+      this.formData = formData;
+    }
     this.createMap();
   },
   watch: {

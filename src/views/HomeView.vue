@@ -305,7 +305,8 @@ export default {
       this.$router.push({
       name: 'tripsearch',
       params: {
-        formData: this.formData // 전달하고자 하는 데이터
+        formData: this.formData ,// 전달하고자 하는 데이터
+        flag: 1
       }
 })
     },
