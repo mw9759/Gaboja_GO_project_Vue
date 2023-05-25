@@ -17,7 +17,7 @@ export default {
             searchParam: {
                 key: null,
                 word: null,
-                spp: 20,
+                spp: 18,
                 pg: 1,
                 num: null,
                 type: null,

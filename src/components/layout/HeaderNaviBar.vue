@@ -47,9 +47,7 @@
             <!--<b-avatar variant="primary" v-text="userInfo.userId.charAt(0).toUpperCase()">
             </b-avatar>-->
             <router-link :to="{ name: 'Profile' }" class="link align-self-center">
-              <b-avatar size="35">
-                <img :src="userInfo.profileImg" alt="Profile" />
-              </b-avatar>
+                <img :src="userInfo.profileImg" alt="Profile" style="width: 35px; height: 35px; border-radius: 50%;"/>
               <span style="color: gray; vertical-align: middle">
                 {{ userInfo.userName }}({{ userInfo.userId }})님 환영합니다.
               </span>
