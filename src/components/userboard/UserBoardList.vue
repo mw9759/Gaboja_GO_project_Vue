@@ -149,9 +149,7 @@
           size="xl"
         >
           <div style="margin-bottom: 10px">
-            <b-avatar size="40">
-              <img :src="userInfo.profileImg" alt="Profile" />
-            </b-avatar>
+            <!-- <img :src="userInfo.profileImg" alt="Profile" style="width: 35px; height: 35px; border-radius: 50%;display: inline-block;"/> -->
             <router-link :to="{ name: 'Profile', params: { userId: pickedArticle.userId } }">
               <h4
                 style="
@@ -290,9 +288,7 @@
               <span style="font-size: medium; vertical-align: middle">{{ comments.length }}</span>
             </h2>
             <div style="border-bottom: 1px solid #a7a9ac; padding-bottom: 0.5rem">
-              <b-avatar size="50">
-                <img :src="userInfo.profileImg" alt="Profile" />
-              </b-avatar>
+              <img :src="userInfo.profileImg" alt="Profile" style="width: 35px; height: 35px; border-radius: 50%;display: inline-block;"/>
               <input
                 type="text"
                 class="comments_input"
@@ -318,9 +314,8 @@
             </div>
 
             <div style="margin-top: 1rem" v-for="comment in comments" :key="comment.commentNo">
-              <b-avatar size="50">
-                <img :src="comment.profileImg" alt="Profile" />
-              </b-avatar>
+              <img :src="comment.profileImg" alt="Profile" style="width: 35px; height: 35px; border-radius: 50%;display: inline-block;"/>
+
               <span style="vertical-align: middle; margin-left: 8px">
                 <span style="color: #19c653" v-if="userId == comment.userId"
                   >내가작성한 글({{ comment.userId }})<b-icon
