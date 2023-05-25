@@ -401,9 +401,8 @@ Vue.use(BootstrapVueIcons);
 export default {
   name: "TravelPlanVeiw",
   created() {
-    if (JSON.parse(this.userInfo.likeBoards)) {
-      alert(11);
-            this.likeBoards = JSON.parse(this.userInfo.likeBoards);
+    if (JSON.parse(this.userInfo.likeAttractions)) {
+            this.likeAttractions = JSON.parse(this.userInfo.likeAttractions);
         }
   },
   data() {
@@ -412,7 +411,7 @@ export default {
       //pickedArticlesImg: [], // 해당 리스트에 업로드된 이미지들
       comments: [], // 해당 게시글에 대한 댓글
       writedComment: null, // 사용자가 작성중인 댓글
-      likeBoards: [], // 사용자가 좋아요 누른 게시글
+      likeAttractions: [], // 사용자가 좋아요 누른 게시글
       formData: {
         lati: "",
         long: "",
@@ -521,8 +520,8 @@ export default {
   methods: {
     //좋아요 눌렀는지 확인
     isLike(contentId) {
-      for (var i = 0; i < this.likeBoards.length; i++) {
-        if (contentId == this.likeBoards[i]) {
+      for (var i = 0; i < this.likeAttractions.length; i++) {
+        if (contentId == this.likeAttractions[i]) {
           return true;
         }
       }
@@ -530,15 +529,15 @@ export default {
     },
     // 좋아요 역변
     clickHeart(contentId, like) {
-      for (var i = 0; i < this.likeBoards.length; i++) {
-        if (contentId == this.likeBoards[i]) {
-          this.likeBoards.splice(i, 1);
+      for (var i = 0; i < this.likeAttractions.length; i++) {
+        if (contentId == this.likeAttractions[i]) {
+          this.likeAttractions.splice(i, 1);
           this.pickedArticle.like--;
           this.updateLikeBoards(contentId, like - 1); // 좋아요 정보 업데이트
           return;
         }
       }
-      this.likeBoards.push(contentId);
+      this.likeAttractions.push(contentId);
       this.pickedArticle.like += 1;
       this.updateLikeBoards(contentId, like + 1); // 좋아요 정보 업데이트
     },
