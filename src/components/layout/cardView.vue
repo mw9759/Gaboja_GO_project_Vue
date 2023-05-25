@@ -1,5 +1,5 @@
 <template>
-    <div class="card-wrap2" @mousemove="handleMouseMove" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave"
+    <div class="card-wrap2" @mousemove="handleMouseMove" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave" 
         ref="card">
         <div class="card2" :style="cardStyle" style="box-sizing: content-box !important;">
             <div class="card-bg2" :style="[cardBgTransform, cardBgImage]"></div>

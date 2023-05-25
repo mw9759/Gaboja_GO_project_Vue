@@ -54,7 +54,7 @@ const routes = [
   {
     path: "/tripsearch",
     name: "tripsearch",
-    beforeEnter: onlyAuthUser,
+    
     component: () => import(/* webpackChunkName: "tripsearch" */ "@/views/TripSearchView.vue"),
   },
   {

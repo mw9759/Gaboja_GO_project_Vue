@@ -607,6 +607,13 @@ export default {
     },
   },
   created() {
+    let key = this.$route.params.key;
+    let word = this.$route.params.word;
+    if (key) {
+      this.searchParam_list.key = key;
+      this.searchParam_list.word = word;
+    }
+
     let token = sessionStorage.getItem("access-token");
     this.getUserInfo(token);
     this.search();

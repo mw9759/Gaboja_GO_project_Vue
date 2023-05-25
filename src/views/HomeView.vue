@@ -1,58 +1,95 @@
 <template>
   <section>
     <div class="top_">
-      <form @submit.prevent="moveTripSearch" id="form-serach" role="search" style="
-              margin-left: 22%;
-              margin-top: 15%;
-              width: 55%;
-              position: absolute;
-              text-align: center;
-              padding: 20px 0px;
-              border-radius: 20px;
-              background-color: white;
-            ">
-        <select id="search-area" name="search-area" class="form-select" aria-label="Default select example"
-          style="border: none">
-          <option value="" selected>검색 할 지역 선택</option>
-          <option value="1">서울</option>
-          <option value="2">인천</option>
-          <option value="3">대전</option>
-          <option value="4">대구</option>
-          <option value="5">광주</option>
-          <option value="6">부산</option>
-          <option value="7">울산</option>
-          <option value="8">세종특별자치시</option>
-          <option value="31">경기도</option>
-          <option value="32">강원도</option>
-          <option value="33">충청북도</option>
-          <option value="34">충청남도</option>
-          <option value="35">경상북도</option>
-          <option value="36">경상남도</option>
-          <option value="37">전라북도</option>
-          <option value="38">전라남도</option>
-          <option value="39">제주도</option>
-        </select>
-        <select id="sort-type" name="sort-type" class="form-select" aria-label="Default select example"
-          style="border: none">
-          <option value="1" selected>제목순 정렬</option>
-          <option value="2">거리순 정렬</option>
-        </select>
-        <select id="search-content-id" name="search-content-id" class="form-select" aria-label="Default select example"
-          style="border: none">
-          <option value="" selected>전체 선택</option>
-          <option value="12">관광지</option>
-          <option value="14m">축제공연행사</option>
-          <option value="25">여행코스</option>
-          <option value="28">레포츠</option>
-          <option value="32">숙박</option>
-          <option value="38">쇼핑</option>
-          <option value="39">음식점</option>
-        </select>
-        <input id="search-keyword" name="search-keyword" class="form-control me-2" type="text" placeholder="검색어"
-          aria-label="검색어" style="display: inline-block; width: 25%" />
-        <button id="btn-search" class="btn btn-dark" type="button">검색</button>
-      </form>
-    </div>
+        <form
+          id="formSerach"
+          role="search"
+          style="
+            margin-left: 22%;
+            margin-top: 15%;
+            width: 55%;
+            position: absolute;
+            text-align: center;
+            padding: 20px 0px;
+            border-radius: 20px;
+            background-color: white;
+          "
+        >
+          <select
+            id="searchArea"
+            name="searchArea"
+            class="form-select"
+            aria-label="Default select example"
+            style="border: none"
+            v-model="formData.searchArea"
+          >
+            <option value="" selected>검색 할 지역 선택</option>
+            <option value="1">서울</option>
+            <option value="2">인천</option>
+            <option value="3">대전</option>
+            <option value="4">대구</option>
+            <option value="5">광주</option>
+            <option value="6">부산</option>
+            <option value="7">울산</option>
+            <option value="8">세종특별자치시</option>
+            <option value="31">경기도</option>
+            <option value="32">강원도</option>
+            <option value="33">충청북도</option>
+            <option value="34">충청남도</option>
+            <option value="35">경상북도</option>
+            <option value="36">경상남도</option>
+            <option value="37">전라북도</option>
+            <option value="38">전라남도</option>
+            <option value="39">제주도</option>
+          </select>
+          <select
+            id="sortType"
+            name="sortType"
+            class="form-select"
+            aria-label="Default select example"
+            style="border: none"
+            v-model="formData.sortType"
+          >
+            <option value="1" selected>제목순 정렬</option>
+            <option value="2">거리순 정렬</option>
+          </select>
+          <select
+            id="searchContentId"
+            name="searchContentId"
+            class="form-select"
+            aria-label="Default select example"
+            style="border: none"
+            v-model="formData.searchContentId"
+          >
+            <option value="" selected>전체 선택</option>
+            <option value="12">관광지</option>
+            <option value="14">문화시설</option>
+            <option value="15">축제공연행사</option>
+            <option value="25">여행코스</option>
+            <option value="28">레포츠</option>
+            <option value="32">숙박</option>
+            <option value="38">쇼핑</option>
+            <option value="39">음식점</option>
+          </select>
+          <input
+            id="searchKeyword"
+            name="searchKeyword"
+            class="form-control me-2"
+            type="text"
+            placeholder="검색어"
+            aria-label="검색어"
+            style="display: inline-block; width: 25%"
+            v-model="formData.searchKeyword"
+          />
+          <input
+            id="btn_search"
+            class="btn btn-dark"
+            type="button"
+            value="검색"
+            @click="goSearch"
+          />
+        </form>
+      </div>
 
 
     <div class="container2">
@@ -60,35 +97,34 @@
     </div>
 
     <div class="container2">
-      <router-link :to="{ name: ' / ', params: {} }">
-        <card-view
+      <div @click="choiceThema(12)">
+        <card-view 
           data-image="https://images.squarespace-cdn.com/content/v1/586ebc34d482e9c69268b69a/1624386887478-9Z3XA27D8WFVDWKW00QS/20201230173806551_JRT8E1VC.png">
           <h1 slot="header" style="font-family: 'Jua', sans-serif;">SIGHT</h1>
           <p slot="content">전국 각지의 관광지 접수하러 가보자GO</p>
         </card-view>
-      </router-link>
-
-      <router-link :to="{ name: ' / ', params: {} }">
+      </div>
+      <div  @click="choiceThema(15)">
         <card-view
           data-image="https://image.genie.co.kr/Y/IMAGE/IMG_MUZICAT/IV2/Genie_Magazine/8955/Mgz_Main_Top_20200910162109.jpg/dims/resize/Q_80,0">
           <h1 slot="header" style="font-family: 'Jua', sans-serif;">FESTIVAL</h1>
           <p slot="content">가끔은 많은 사람들속에 빠져보자GO</p>
         </card-view>
-      </router-link>
-
-      <router-link :to="{ name: ' / ', params: {} }">
-        <card-view data-image="https://t1.daumcdn.net/cfile/tistory/25528E4D580740BC13">
+      </div>
+      <div @click="choiceThema(28)">
+        <card-view 
+        data-image="https://t1.daumcdn.net/cfile/tistory/25528E4D580740BC13">
           <h1 slot="header" style="font-family: 'Jua', sans-serif;">LEPORTS</h1>
           <p slot="content">정적인 여행보단 역시 활동적인게 좋다GO</p>
         </card-view>
-      </router-link>
-
-      <router-link :to="{ name: ' / ', params: {} }">
-        <card-view data-image="https://i.ytimg.com/vi/8B0ZZlsQy3E/maxresdefault.jpg">
+      </div>
+      <div @click="choiceThema(39)">
+        <card-view 
+        data-image="https://i.ytimg.com/vi/8B0ZZlsQy3E/maxresdefault.jpg">
           <h1 slot="header" style="font-family: 'Jua', sans-serif;">FOODS</h1>
           <p slot="content">놀러가는데 맛있는게 없으면 말이 되냐GO</p>
         </card-view>
-      </router-link>
+      </div>
     </div>
 
     <div class="container2">
@@ -97,39 +133,36 @@
 
     <div class="container2">
 
-      <router-link :to="{ name: ' / ', params: {} }">
+      <div @click="choiceRegion(1)">
         <card-view
           data-image="https://www.agoda.com/wp-content/uploads/2019/03/Seoul-attractions-N-Seoul-Tower.jpg">
           <h1 slot="header" style="font-family: 'Jua', sans-serif;">SEOUL</h1>
           <p slot="content">서울 가보자GO</p>
         </card-view>
-      </router-link>
-
-      <router-link :to="{ name: ' / ', params: {} }">
+      </div>
+      <div @click="choiceRegion(39)">
         <card-view
           data-image="https://www.lottehotel.com/content/dam/lotte-hotel/lotte/jeju/overview/introduction/g-0807.jpg.thumb.768.768.jpg">
           <h1 slot="header" style="font-family: 'Jua', sans-serif;">JEJU</h1>
           <p slot="content">제주도 가보자GO</p>
         </card-view>
-      </router-link>
-
-      <router-link :to="{ name: ' / ', params: {} }">
+      </div>
+      <div @click="choiceRegion(6)">
         <card-view data-image="https://www.visitbusan.net/uploadImgs/files/cntnts/20191229153530528_ttiel">
           <h1 slot="header" style="font-family: 'Jua', sans-serif;">BUSAN</h1>
           <p slot="content">부산 가보자GO</p>
         </card-view>
-      </router-link>
-
-      <router-link :to="{ name: ' / ', params: {} }">
+      </div>
+      <div @click="choiceRegion(31)">
         <card-view data-image="https://res.klook.com/image/upload/fl_lossy.progressive,w_800,c_fill,q_85/Mobile/City/vxqwz51mk0ks5o5ewsrf.jpg">
-          <h1 slot="header" style="font-family: 'Jua', sans-serif;">Gyeonggi</h1>
+          <h1 slot="header" style="font-family: 'Jua', sans-serif;">GYEONGGI</h1>
           <p slot="content">경기도 가보자GO</p>
         </card-view>
-      </router-link>
+      </div>
     </div>
 
     <div class="hot3boards container">
-      <h2 class="container2">HotBoards</h2>
+      <h2 class="container2">HOT BOARDS</h2>
       <div class="gallery">
       <div v-for="article in articles" :key="article.articleNo">
         <div class="gallery-item" tabindex="0">
@@ -155,14 +188,13 @@
                 <b-carousel-slide
                   v-if="article.articleNo == img.articleNo"
                   :key="img.articleNo"
-                  v-b-modal.modal-center
                 >
                   <!-- :img-src="img.imgBlob"
                                     > -->
                   <template #img>
-                    <img :src="img.imgBlob" alt="Image" class="image-container" />
+                    <img :src="img.imgBlob" alt="Image" class="image-container"/>
                   </template>
-                  <div class="left-text" @click="mvModal(article)">
+                  <div class="left-text" @click="mvUserBoards(article.articleNo)">
                     <h3>{{ article.subject }}</h3>
                     <div>
                       <span style="margin-right: 15px; display: inline-block"
@@ -200,7 +232,7 @@
                       class="image-container"
                     />
                   </template>
-                  <div class="left-text" @click="mvModal(article)">
+                  <div class="left-text" @click="mvUserBoards(article.articleNo)">
                     <h3>{{ article.subject }}</h3>
                     <div>
                       <span style="margin-right: 15px; display: inline-block"
@@ -245,7 +277,7 @@ export default {
       formData: {
         lati: "",
         long: "",
-        searchArea: "",
+        searchArea: "1",
         sortType: "1",
         searchContentId: "",
         searchKeyword: "",
@@ -258,6 +290,37 @@ export default {
     };
   },
   methods: {
+    //클릭한 게시글 페이지로 이동
+    mvUserBoards(articleNo) {
+      this.$router.push({
+        name: 'userboardlist',
+        params: {
+          word: articleNo, // 전달하고자 하는 데이터
+          key: "article_no"
+        }
+      })
+    },
+    //검색결과창이동
+    goSearch() {
+      this.$router.push({
+      name: 'tripsearch',
+      params: {
+        formData: this.formData // 전달하고자 하는 데이터
+      }
+})
+    },
+    //테마선택이동
+    choiceThema(searchContentId) {
+      this.formData.searchContentId = searchContentId;
+      this.goSearch();
+    },
+    //지역선택이동
+    choiceRegion(searchArea) {
+      this.formData.searchContentId = 12;
+      this.formData.searchArea = searchArea;
+      this.goSearch();
+    },
+
     //게시글 불러오기
     search() {
       http

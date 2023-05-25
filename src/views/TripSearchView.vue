@@ -145,9 +145,9 @@ export default {
       formData: {
         lati: "",
         long: "",
-        searchArea: "",
+        searchArea: "1",
         sortType: "1",
-        searchContentId: "",
+        searchContentId: "12",
         searchKeyword: "",
       },
       map: null,
@@ -155,13 +155,22 @@ export default {
       markers: [],
     };
   },
+  created() {
+    let data = this.$route.params.formData;
+    if (data) {
+      this.formData = data;
+    }
+        
+  },
   mounted() {
     const script = document.createElement("script");
     /* global kakao */
     script.onload = () => kakao.maps.load(this.initMap);
     script.src =
-      "http://dapi.kakao.com/v2/maps/sdk.js?appkey=509e8446f54aaa4ff63503311698321b&autoload=false";
+    "http://dapi.kakao.com/v2/maps/sdk.js?appkey=509e8446f54aaa4ff63503311698321b&autoload=false";
     document.head.appendChild(script);
+    
+    
   },
   methods: {
     // 관광지 리스트 출력
@@ -185,6 +194,7 @@ export default {
         level: 7,
       };
       this.map = new kakao.maps.Map(container, options);
+      this.submitForm();
     },
 
     // 인포윈도우를 표시하는 클로저 생성

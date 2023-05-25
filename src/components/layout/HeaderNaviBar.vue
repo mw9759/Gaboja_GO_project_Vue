@@ -2,7 +2,7 @@
   <div class="custom-div">
     <b-navbar toggleable="lg" type="dark" class="custom-nav container">
       <b-navbar-brand href="#">
-        <router-link to="/"> <span style="color: blue"> 가보자GO!</span> </router-link>
+        <router-link to="/"> <span style="color: #007bff"> 가보자GO!</span> </router-link>
       </b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse" style="background-color: #007bff"></b-navbar-toggle>
